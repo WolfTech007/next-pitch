@@ -1,6 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { hasKvStorage } from "@/lib/server/has-kv-storage";
+import { getRedis } from "@/lib/server/redis";
 
 export type AuthUser = {
   id: string;
@@ -13,6 +15,8 @@ type RegistryFile = {
   users: AuthUser[];
 };
 
+const KV_AUTH_KEY = "np_auth_users_v1";
+
 function registryPath(): string {
   return path.join(process.cwd(), "data", "auth-users.json");
 }
@@ -22,6 +26,16 @@ async function ensureDir(): Promise<void> {
 }
 
 export async function readRegistry(): Promise<AuthUser[]> {
+  if (hasKvStorage()) {
+    try {
+      const raw = await getRedis().get<string>(KV_AUTH_KEY);
+      if (!raw) return [];
+      const j = JSON.parse(raw) as RegistryFile;
+      return Array.isArray(j.users) ? j.users : [];
+    } catch {
+      return [];
+    }
+  }
   try {
     const raw = await fs.readFile(registryPath(), "utf8");
     const j = JSON.parse(raw) as RegistryFile;
@@ -32,8 +46,12 @@ export async function readRegistry(): Promise<AuthUser[]> {
 }
 
 export async function writeRegistry(users: AuthUser[]): Promise<void> {
-  await ensureDir();
   const body: RegistryFile = { users };
+  if (hasKvStorage()) {
+    await getRedis().set(KV_AUTH_KEY, JSON.stringify(body));
+    return;
+  }
+  await ensureDir();
   await fs.writeFile(registryPath(), JSON.stringify(body, null, 2), "utf8");
 }
 

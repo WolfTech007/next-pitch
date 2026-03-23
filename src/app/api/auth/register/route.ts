@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hashPassword } from "@/lib/auth/password";
-import { setSessionCookie, signSessionToken } from "@/lib/auth/session";
+import { applySessionCookieToResponse, signSessionToken } from "@/lib/auth/session";
 import { createUser } from "@/lib/auth/users-registry";
 
 export async function POST(req: Request) {
@@ -26,11 +26,12 @@ export async function POST(req: Request) {
     const hash = await hashPassword(password);
     const user = await createUser(email, hash);
     const token = await signSessionToken(user.id, user.email);
-    await setSessionCookie(token);
-    return NextResponse.json({
+    const res = NextResponse.json({
       ok: true,
       user: { id: user.id, email: user.email },
     });
+    applySessionCookieToResponse(res, token);
+    return res;
   } catch (e) {
     return NextResponse.json(
       { error: (e as Error).message || "Could not create account." },

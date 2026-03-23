@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyPassword } from "@/lib/auth/password";
-import { setSessionCookie, signSessionToken } from "@/lib/auth/session";
+import { applySessionCookieToResponse, signSessionToken } from "@/lib/auth/session";
 import { findUserByEmail } from "@/lib/auth/users-registry";
 
 export async function POST(req: Request) {
@@ -22,9 +22,10 @@ export async function POST(req: Request) {
   }
 
   const token = await signSessionToken(user.id, user.email);
-  await setSessionCookie(token);
-  return NextResponse.json({
+  const res = NextResponse.json({
     ok: true,
     user: { id: user.id, email: user.email },
   });
+  applySessionCookieToResponse(res, token);
+  return res;
 }

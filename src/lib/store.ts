@@ -1,5 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { hasKvStorage } from "@/lib/server/has-kv-storage";
+import { getRedis } from "@/lib/server/redis";
 import type { ZonePick } from "./markets";
 
 /**
@@ -73,6 +75,10 @@ export function defaultStoreData(): StoreData {
   };
 }
 
+function kvStoreKey(userId: string): string {
+  return `np_user_store_v1:${userId}`;
+}
+
 function userStorePath(userId: string): string {
   return path.join(process.cwd(), "data", "user-data", `${userId}.json`);
 }
@@ -85,6 +91,19 @@ async function ensureUserDataDir(): Promise<void> {
  * Load one user’s store; creates `defaultStoreData()` on first access.
  */
 export async function readStore(userId: string): Promise<StoreData> {
+  if (hasKvStorage()) {
+    try {
+      const raw = await getRedis().get<string>(kvStoreKey(userId));
+      if (raw) {
+        return JSON.parse(raw) as StoreData;
+      }
+    } catch {
+      /* fall through to initial */
+    }
+    const initial = defaultStoreData();
+    await writeStore(userId, initial);
+    return initial;
+  }
   await ensureUserDataDir();
   const p = userStorePath(userId);
   try {
@@ -98,6 +117,10 @@ export async function readStore(userId: string): Promise<StoreData> {
 }
 
 export async function writeStore(userId: string, data: StoreData): Promise<void> {
+  if (hasKvStorage()) {
+    await getRedis().set(kvStoreKey(userId), JSON.stringify(data));
+    return;
+  }
   await ensureUserDataDir();
   const p = userStorePath(userId);
   await fs.writeFile(p, JSON.stringify(data, null, 2), "utf8");
