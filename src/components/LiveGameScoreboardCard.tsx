@@ -104,22 +104,22 @@ export function LiveGameScoreboardCard({ card }: { card: HomeGameCardViewModel }
   return (
     <Link
       href={card.href}
-      className="group block overflow-hidden rounded-xl border border-zinc-800 bg-surface-card shadow-sm transition hover:border-zinc-600"
+      className="group np-card np-card-interactive block overflow-hidden rounded-np-card border border-white/[0.06] shadow-np-card transition hover:border-np-blue/35"
     >
       {/* Header */}
-      <div className="border-b border-zinc-800/80 px-4 py-2.5">
+      <div className="border-b border-white/[0.06] px-4 py-2.5">
         <div className="flex items-baseline justify-between gap-2">
           <p className="text-sm font-bold tracking-tight text-white">
             {card.inningLabel}
           </p>
           {card.statusHint ? (
-            <p className="text-[10px] text-zinc-500">{card.statusHint}</p>
+            <p className="text-[10px] text-white/45">{card.statusHint}</p>
           ) : null}
         </div>
       </div>
 
       {/* Score + state */}
-      <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-zinc-800/80 px-4 py-3">
+      <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-white/[0.06] px-4 py-3">
         <div className="min-w-0 space-y-2">
           <TeamRow
             name={away.name}
@@ -141,7 +141,7 @@ export function LiveGameScoreboardCard({ card }: { card: HomeGameCardViewModel }
           />
         </div>
 
-        <div className="flex flex-col items-center gap-2 border-l border-zinc-800/80 pl-3">
+        <div className="flex flex-col items-center gap-2 border-l border-white/[0.06] pl-3">
           <BaseDiamond
             onFirst={card.onFirst}
             onSecond={card.onSecond}
@@ -151,18 +151,18 @@ export function LiveGameScoreboardCard({ card }: { card: HomeGameCardViewModel }
           <p className="font-mono text-sm font-semibold tabular-nums text-white">
             {card.balls} - {card.strikes}
           </p>
-          <p className="text-[9px] uppercase tracking-wide text-zinc-500">count</p>
+          <p className="text-[9px] uppercase tracking-wide text-white/40">count</p>
         </div>
       </div>
 
       {card.broadcast ? (
-        <p className="border-b border-zinc-800/80 px-4 py-1.5 text-[10px] text-zinc-500">
-          Watch on: <span className="text-zinc-400">{card.broadcast}</span>
+        <p className="border-b border-white/[0.06] px-4 py-1.5 text-[10px] text-white/45">
+          Watch on: <span className="text-white/65">{card.broadcast}</span>
         </p>
       ) : null}
 
       {/* Matchup */}
-      <div className="grid grid-cols-2 gap-px bg-zinc-800/80">
+      <div className="grid grid-cols-2 gap-px bg-white/[0.06]">
         <MatchupCell
           kicker={`Pitching ${card.pitching.teamAbbr}`}
           name={card.pitching.lastName}
@@ -177,7 +177,7 @@ export function LiveGameScoreboardCard({ card }: { card: HomeGameCardViewModel }
         />
       </div>
 
-      <p className="px-4 py-2 text-[10px] text-zinc-600 group-hover:text-zinc-500">
+      <p className="px-4 py-2 text-[10px] text-white/40 group-hover:text-white/55">
         Open game · #{card.gamePk}
       </p>
     </Link>

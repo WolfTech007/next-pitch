@@ -21,25 +21,27 @@ export default async function HomePage() {
     return (
     <>
       <Header />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-accent-blue">
+      <main className="mx-auto max-w-5xl px-4 py-10 lg:px-6">
+        <div className="np-card np-card-interactive mb-10 rounded-np-card border border-white/[0.06] p-8 shadow-np-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-np-cyan/90">
             Prototype
           </p>
-          <h1 className="mt-2 text-3xl font-bold text-white">Live MLB — Next Pitch</h1>
-          <p className="mt-2 max-w-2xl text-sm text-zinc-400">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-np-text lg:text-4xl">
+            Live MLB — Next Pitch
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">
             Pick up to three buckets for the upcoming pitch, see a simple price, submit
             with fake money, then resolve after the next pitch (or use demo resolve).
             Scores below pull from MLB&apos;s public API (linescore, boxscore, broadcast
             listings).
           </p>
-          <p className="mt-3 max-w-2xl text-sm text-zinc-500">
+          <p className="mt-4 max-w-2xl text-sm text-white/45">
             Each person needs an account so balances and bet history stay separate.{" "}
-            <Link href="/register" className="text-accent-blue hover:underline">
+            <Link href="/register" className="font-medium text-np-blue-bright hover:underline">
               Create account
             </Link>{" "}
             or{" "}
-            <Link href="/login" className="text-accent-blue hover:underline">
+            <Link href="/login" className="font-medium text-np-blue-bright hover:underline">
               sign in
             </Link>{" "}
             to open a game and place bets.
@@ -47,11 +49,11 @@ export default async function HomePage() {
         </div>
 
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-zinc-300">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-white/45">
             Games ({date})
           </h2>
           {cards.length === 0 ? (
-            <p className="text-sm text-zinc-500">No games found.</p>
+            <p className="text-sm text-white/45">No games found.</p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {cards.map((c) => (
@@ -72,8 +74,8 @@ export default async function HomePage() {
       <>
         <Header />
         <main className="mx-auto max-w-5xl px-4 py-8">
-          <p className="text-red-400">Error: {msg}</p>
-          {stack && <pre className="mt-4 overflow-auto text-xs text-zinc-500">{stack}</pre>}
+          <p className="text-np-danger">Error: {msg}</p>
+          {stack && <pre className="mt-4 overflow-auto text-xs text-white/45">{stack}</pre>}
         </main>
       </>
     );

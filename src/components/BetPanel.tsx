@@ -232,26 +232,37 @@ export function BetPanel({
 
   return (
     <div
-      className={`flex h-full min-h-0 flex-col rounded-xl border border-zinc-800/90 bg-gradient-to-b from-zinc-900/80 to-zinc-950 p-5 shadow-xl ring-1 ring-zinc-800/50 ${className}`}
+      className={`np-card np-card-interactive flex h-full min-h-0 flex-col p-5 shadow-np-card ${className}`}
     >
-      <div className="mb-4 border-b border-zinc-800/80 pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
-          Next pitch
+      <div className="mb-4 border-b border-white/[0.06] pb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+            Bet slip
+          </p>
+          {placementLocked ? (
+            <span className="rounded-full border border-np-blue/40 bg-np-blue/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-np-blue-bright">
+              Locked
+            </span>
+          ) : (
+            <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/50">
+              Draft
+            </span>
+          )}
+        </div>
+        <p className="mt-2 text-xs text-white/50">
+          <span className="text-np-text">{pitcherName ?? "Pitcher"}</span>
+          <span className="mx-1 text-white/30">vs</span>
+          <span className="text-np-text">{batterName ?? "Batter"}</span>
         </p>
-        <p className="mt-2 text-xs text-zinc-500">
-          <span className="text-zinc-300">{pitcherName ?? "Pitcher"}</span>
-          <span className="mx-1 text-zinc-600">vs</span>
-          <span className="text-zinc-300">{batterName ?? "Batter"}</span>
-        </p>
-        <p className="mt-2 text-sm leading-snug text-zinc-400">{hint}</p>
-        <p className="mt-1 text-[10px] text-zinc-600">Fake money only · prototype</p>
+        <p className="mt-2 text-sm leading-snug text-white/55">{hint}</p>
+        <p className="mt-1 text-[10px] text-white/35">Fake money only · prototype</p>
       </div>
 
       <div className="mb-4">
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-white/45">
           Quick picks
         </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {presetQuotes.map((p) => {
             const busy = quickKey === p.label;
             const disabled =
@@ -269,18 +280,18 @@ export function BetPanel({
                   applyPreset(p.selections);
                   void submitWithSelections(p.selections, "quick", p.label);
                 }}
-                className="rounded-lg border border-zinc-700/90 bg-zinc-800/40 px-3 py-2.5 text-left text-xs transition hover:border-amber-500/40 hover:bg-zinc-800/70 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-np-control border border-white/[0.08] bg-np-panel/50 px-3 py-2.5 text-left text-xs transition hover:border-np-blue/40 hover:bg-np-blue/10 hover:shadow-[0_0_20px_rgba(37,99,255,0.12)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <span className="font-medium text-zinc-200">{p.label}</span>
+                <span className="font-medium text-np-text">{p.label}</span>
                 {p.quote ? (
-                  <span className="mt-1 block font-mono text-accent-amber">
+                  <span className="mt-1 block font-mono text-np-cyan">
                     {p.quote.offeredOdds.toFixed(1)}x
                   </span>
                 ) : (
-                  <span className="mt-1 block text-zinc-600">—</span>
+                  <span className="mt-1 block text-white/35">—</span>
                 )}
                 {busy ? (
-                  <span className="mt-1 block text-[10px] text-zinc-500">Placing…</span>
+                  <span className="mt-1 block text-[10px] text-white/45">Placing…</span>
                 ) : null}
               </button>
             );
@@ -289,13 +300,13 @@ export function BetPanel({
       </div>
 
       <div className="mb-3 space-y-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-white/45">
           Categories
         </p>
-        <label className="block text-[11px] text-zinc-500">
+        <label className="block text-[11px] text-white/45">
           Pitch type
           <select
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950/80 px-3 py-2.5 text-sm text-white transition hover:border-zinc-600"
+            className="np-input mt-1"
             value={pitchType}
             onChange={(e) =>
               setPitchType((e.target.value || "") as "" | PitchType)
@@ -309,10 +320,10 @@ export function BetPanel({
             ))}
           </select>
         </label>
-        <label className="block text-[11px] text-zinc-500">
+        <label className="block text-[11px] text-white/45">
           Velocity
           <select
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950/80 px-3 py-2.5 text-sm text-white transition hover:border-zinc-600"
+            className="np-input mt-1"
             value={velocity}
             onChange={(e) =>
               setVelocity((e.target.value || "") as "" | VelocityBucket)
@@ -326,21 +337,21 @@ export function BetPanel({
             ))}
           </select>
         </label>
-        <div className="block text-[11px] text-zinc-500">
+        <div className="block text-[11px] text-white/45">
           Location
-          <div className="mt-1 rounded-lg border border-zinc-700 bg-zinc-950/80 px-3 py-2.5 text-sm text-zinc-200">
+          <div className="mt-1 rounded-np-control border border-np-blue/25 bg-np-blue/5 px-3 py-2.5 text-sm text-np-text shadow-[inset_0_0_24px_rgba(37,99,255,0.06)]">
             {locationSummary}
           </div>
-          <p className="mt-1 text-[10px] text-zinc-600">
+          <p className="mt-1 text-[10px] text-white/40">
             Use the pitch map: squares inside the zone (
-            <span className="text-zinc-400">Custom</span>) or tap anywhere on the pitch map outside
-            the strike-zone frame (<span className="text-zinc-400">Ball</span>).
+            <span className="text-np-cyan/90">Custom</span>) or tap anywhere on the pitch map outside
+            the strike-zone frame (<span className="text-np-cyan/90">Ball</span>).
           </p>
         </div>
-        <label className="block text-[11px] text-zinc-500">
+        <label className="block text-[11px] text-white/45">
           Batting result
           <select
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950/80 px-3 py-2.5 text-sm text-white transition hover:border-zinc-600"
+            className="np-input mt-1"
             value={battingResult}
             onChange={(e) =>
               setBattingResult((e.target.value || "") as "" | BattingResult)
@@ -356,38 +367,38 @@ export function BetPanel({
         </label>
       </div>
 
-      <label className="mb-3 block text-[11px] text-zinc-500">
+      <label className="mb-3 block text-[11px] text-white/45">
         Unit size
         <input
           type="number"
           step="0.01"
           min={0.1}
           max={200}
-          className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950/80 px-3 py-2.5 font-mono text-sm text-white"
+          className="np-input mt-1 font-mono"
           value={stake}
           onChange={(e) => setStake(e.target.value)}
         />
       </label>
 
-      <div className="mb-4 rounded-lg border border-zinc-800 bg-black/30 px-4 py-3">
+      <div className="mb-4 rounded-np-control border border-white/[0.06] bg-black/35 px-4 py-3 backdrop-blur-sm">
         {quote ? (
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between gap-4">
-              <span className="text-zinc-500">Odds</span>
-              <span className="font-mono text-lg font-semibold text-accent-amber">
+              <span className="text-white/45">Odds</span>
+              <span className="font-mono text-lg font-semibold text-np-cyan">
                 {quote.offeredOdds.toFixed(2)}x
               </span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-zinc-500">Payout</span>
-              <span className="font-mono text-accent-green">${payout.toFixed(2)}</span>
+              <span className="text-white/45">Payout</span>
+              <span className="font-mono font-semibold text-np-success">${payout.toFixed(2)}</span>
             </div>
-            <p className="text-[10px] text-zinc-600">
+            <p className="text-[10px] text-white/35">
               Prob {(quote.probability * 100).toFixed(2)}% (combined props)
             </p>
           </div>
         ) : (
-          <p className="text-sm text-zinc-500">Pick 1–3 categories to see live pricing.</p>
+          <p className="text-sm text-white/45">Pick 1–3 categories to see live pricing.</p>
         )}
       </div>
 
@@ -395,19 +406,19 @@ export function BetPanel({
         type="button"
         onClick={() => submitManual()}
         disabled={loading || !quote || quickKey !== null}
-        className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:from-emerald-500 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+        className="np-btn-primary w-full py-3.5 text-sm font-bold uppercase tracking-wide disabled:cursor-not-allowed disabled:opacity-40"
       >
         {loading ? "Placing…" : "Place bet"}
       </button>
 
       {gamePk !== DEMO_GAME_ID ? (
-        <p className="mt-3 text-center text-[10px] leading-relaxed text-zinc-600">
+        <p className="mt-3 text-center text-[10px] leading-relaxed text-white/35">
           Submit before the count changes — next pitch auto-settles pending slips.
         </p>
       ) : null}
 
       {msg ? (
-        <p className="mt-3 text-center text-xs text-zinc-400">{msg}</p>
+        <p className="mt-3 text-center text-xs text-white/55">{msg}</p>
       ) : null}
     </div>
   );

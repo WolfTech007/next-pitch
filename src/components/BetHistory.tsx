@@ -103,8 +103,8 @@ export function BetHistory({
       <div
         className={
           embedded
-            ? "py-4 text-sm text-zinc-500"
-            : "rounded-xl border border-zinc-800 bg-surface-card p-4 text-sm text-zinc-500"
+            ? "py-4 text-sm text-white/45"
+            : "np-card rounded-np-card border border-white/[0.06] bg-np-card/90 p-4 text-sm text-white/45"
         }
       >
         Loading history…
@@ -117,10 +117,10 @@ export function BetHistory({
         {bets.map((b) => (
           <li
             key={b.id}
-            className="rounded-lg border border-zinc-800 bg-surface-raised/40 p-3 text-sm"
+            className="rounded-np-control border border-white/[0.06] bg-np-panel/50 p-3 text-sm backdrop-blur-sm"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-medium text-zinc-200">{b.gameLabel}</span>
+              <span className="font-medium text-np-text">{b.gameLabel}</span>
               <span
                 className={
                   b.status === "pending"
@@ -134,9 +134,9 @@ export function BetHistory({
               </span>
             </div>
             {b.scoreboardAtBet ? (
-              <p className="mt-1 text-[10px] leading-relaxed text-zinc-500">
+              <p className="mt-1 text-[10px] leading-relaxed text-white/45">
                 Count:{" "}
-                <span className="text-zinc-400">
+                <span className="text-white/65">
                   {b.scoreboardAtBet.balls}-{b.scoreboardAtBet.strikes} ·{" "}
                   {b.scoreboardAtBet.inningHalf === "bottom" ? "Bottom" : "Top"}{" "}
                   {b.scoreboardAtBet.inning} · {b.scoreboardAtBet.outs} out
@@ -144,24 +144,24 @@ export function BetHistory({
               </p>
             ) : null}
             {b.pitcherNameAtBet || b.batterNameAtBet ? (
-              <p className="mt-1 text-[10px] leading-relaxed text-zinc-500">
+              <p className="mt-1 text-[10px] leading-relaxed text-white/45">
                 {b.pitcherNameAtBet ? (
                   <>
-                    Pitcher: <span className="text-zinc-400">{b.pitcherNameAtBet}</span>
+                    Pitcher: <span className="text-white/65">{b.pitcherNameAtBet}</span>
                   </>
                 ) : null}
                 {b.pitcherNameAtBet && b.batterNameAtBet ? " · " : null}
                 {b.batterNameAtBet ? (
                   <>
-                    Batter: <span className="text-zinc-400">{b.batterNameAtBet}</span>
+                    Batter: <span className="text-white/65">{b.batterNameAtBet}</span>
                   </>
                 ) : null}
               </p>
             ) : null}
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-white/45">
               Stake ${b.stake.toFixed(2)} @ {b.offeredOdds.toFixed(2)}x
             </p>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-white/55">
               Picks:{" "}
               {[
                 b.selections.pitchType,
@@ -173,7 +173,7 @@ export function BetHistory({
                 .join(" · ")}
             </p>
             {b.outcome ? (
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-white/45">
                 Outcome: {b.outcome.pitchType} /{" "}
                 {b.outcome.speedMph != null
                   ? `${b.outcome.speedMph.toFixed(1)} mph`
@@ -202,7 +202,7 @@ export function BetHistory({
                     type="button"
                     disabled={resolvingId === b.id}
                     onClick={() => resolve(b.id, false)}
-                    className="rounded-md bg-zinc-700 px-2 py-1 text-xs text-white hover:bg-zinc-600 disabled:opacity-40"
+                    className="np-btn-secondary px-2 py-1 text-xs disabled:opacity-40"
                   >
                     {resolvingId === b.id ? "…" : "Resolve (live feed)"}
                   </button>
@@ -210,7 +210,7 @@ export function BetHistory({
                     type="button"
                     disabled={resolvingId === b.id}
                     onClick={() => resolve(b.id, true)}
-                    className="rounded-md bg-indigo-600 px-2 py-1 text-xs text-white hover:bg-indigo-500 disabled:opacity-40"
+                    className="rounded-np-control bg-np-blue/90 px-2 py-1 text-xs font-medium text-white shadow-[0_0_16px_rgba(37,99,255,0.35)] hover:bg-np-blue disabled:opacity-40"
                   >
                     Demo resolve
                   </button>
@@ -228,19 +228,19 @@ export function BetHistory({
   if (embedded) {
     return (
       <div className="px-2 pt-1">
-        <p className="mb-3 text-xs text-zinc-500">Last {bets.length} slips</p>
+        <p className="mb-3 text-xs text-white/45">Last {bets.length} slips</p>
         {list}
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-surface-card p-4">
+    <div className="np-card rounded-np-card border border-white/[0.06] p-4 shadow-np-card">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-400">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-white/45">
           Bet history
         </h2>
-        <span className="text-xs text-zinc-500">Last {bets.length} slips</span>
+        <span className="text-xs text-white/40">Last {bets.length} slips</span>
       </div>
       {list}
     </div>

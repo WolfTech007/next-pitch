@@ -31,6 +31,8 @@ type Props = {
   className?: string;
   /** Optional slip location pick — white ring while pending, green/red glow + fade when settled. */
   betMarker?: BetZoneMarkerProps | null;
+  /** Subtle pulse while a slip is locked and we await the next pitch. */
+  mapPulseAwaitingPitch?: boolean;
   /** Interactive strike-zone placement (game page only). */
   placement?: StrikeZonePlacementProps | null;
 };
@@ -63,6 +65,7 @@ export function StrikeZoneCanvas({
   pitches,
   className = "",
   betMarker = null,
+  mapPulseAwaitingPitch = false,
   placement = null,
 }: Props) {
   const filterId = useId().replace(/:/g, "");
@@ -78,24 +81,37 @@ export function StrikeZoneCanvas({
   const mapSvgInner = (
     <>
       <defs>
-        <filter id={`szGlow-${filterId}`} x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="0.8" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        <linearGradient id={`szFill-${filterId}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#12203a" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#070d18" stopOpacity="0.82" />
+        </linearGradient>
+        {/*
+          No feGaussianBlur on the zone fill: blur expands the paint bounds and the root SVG
+          clips to viewBox, so the fill looked shifted vs. unfiltered grid lines.
+        */}
       </defs>
+      {/* Soft outer rim light */}
+      <rect
+        x={SZ.x - 0.35}
+        y={SZ.y - 0.35}
+        width={SZ.w + 0.7}
+        height={SZ.h + 0.7}
+        rx="0.75"
+        fill="none"
+        stroke="rgba(37, 99, 255, 0.14)"
+        strokeWidth="0.85"
+        opacity={0.95}
+        pointerEvents="none"
+      />
       <rect
         x={SZ.x}
         y={SZ.y}
         width={SZ.w}
         height={SZ.h}
         rx="0.6"
-        fill="rgb(24 24 27 / 0.55)"
-        stroke="rgb(113 113 122)"
-        strokeWidth="1"
-        filter={`url(#szGlow-${filterId})`}
+        fill={`url(#szFill-${filterId})`}
+        stroke="rgba(0, 207, 255, 0.22)"
+        strokeWidth="0.75"
         pointerEvents="none"
       />
       {placement ? (
@@ -107,7 +123,13 @@ export function StrikeZoneCanvas({
           onToggleCell={placement.onToggleCell}
         />
       ) : null}
-      <g pointerEvents="none" stroke="rgb(63 63 70 / 0.55)" strokeWidth="0.45">
+      <g pointerEvents="none" opacity={0.55} stroke="rgba(37, 99, 255, 0.38)" strokeWidth="1.05">
+        <line x1={SZ_V1} y1={SZ.y} x2={SZ_V1} y2={SZ.y + SZ.h} strokeLinecap="round" />
+        <line x1={SZ_V2} y1={SZ.y} x2={SZ_V2} y2={SZ.y + SZ.h} strokeLinecap="round" />
+        <line x1={SZ.x} y1={SZ_H1} x2={SZ.x + SZ.w} y2={SZ_H1} strokeLinecap="round" />
+        <line x1={SZ.x} y1={SZ_H2} x2={SZ.x + SZ.w} y2={SZ_H2} strokeLinecap="round" />
+      </g>
+      <g pointerEvents="none" stroke="rgba(186, 230, 253, 0.32)" strokeWidth="0.32">
         <line x1={SZ_V1} y1={SZ.y} x2={SZ_V1} y2={SZ.y + SZ.h} />
         <line x1={SZ_V2} y1={SZ.y} x2={SZ_V2} y2={SZ.y + SZ.h} />
         <line x1={SZ.x} y1={SZ_H1} x2={SZ.x + SZ.w} y2={SZ_H1} />
@@ -166,36 +188,46 @@ export function StrikeZoneCanvas({
     </>
   );
 
+  const pulseClass =
+    mapPulseAwaitingPitch && placement ? "animate-np-pulse border-np-blue/25" : "";
+
   return (
     <div
-      className={`flex h-full min-h-0 flex-col rounded-xl border border-zinc-800/90 bg-gradient-to-b from-zinc-950 to-black p-4 ${className}`}
+      className={`np-card np-card-interactive flex h-full min-h-0 flex-col p-5 shadow-np-card transition-[box-shadow,border-color] duration-300 ${pulseClass} ${className}`}
     >
       <div className="shrink-0">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          Pitch map
-        </h2>
-        <p className="mt-1 text-xs text-zinc-600">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+            Strike zone
+          </h2>
+          {placement ? (
+            <span className="rounded-full border border-np-cyan/30 bg-np-cyan/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-np-cyan">
+              Live
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-1 text-xs text-white/50">
           This at-bat only · Statcast location when available
         </p>
         {placement ? (
-          <p className="mt-2 text-[10px] leading-snug text-zinc-500">
+          <p className="mt-2 text-[10px] leading-relaxed text-white/45">
             Click squares inside the zone for coverage, or click{" "}
-            <span className="text-zinc-400">anywhere else on this pitch map</span> for a ball (pitch
-            not in zones 1–9). Click again to clear, or pick a zone square to switch.
+            <span className="text-np-blue-bright/90">anywhere else on this pitch map</span> for a
+            ball (pitch not in zones 1–9). Click again to clear, or pick a zone square to switch.
           </p>
         ) : null}
-        <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-zinc-500">
+        <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-white/45">
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-red-500" /> Ball
+            <span className="h-2 w-2 rounded-full bg-np-danger" /> Ball
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-green-500" /> Strike
+            <span className="h-2 w-2 rounded-full bg-np-success" /> Strike
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-yellow-500" /> Foul
+            <span className="h-2 w-2 rounded-full bg-amber-400" /> Foul
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-zinc-500" /> Other
+            <span className="h-2 w-2 rounded-full bg-white/35" /> Other
           </span>
         </div>
       </div>
@@ -210,13 +242,15 @@ export function StrikeZoneCanvas({
         {placement ? (
           <div
             ref={mapAreaRef}
-            className={`relative flex-1 min-h-[280px] w-full lg:min-h-[360px] ${fadeWrap}`}
+            className={`relative flex-1 min-h-[240px] w-full lg:min-h-[300px] ${fadeWrap}`}
           >
             <svg
               ref={mapSvgRef}
               viewBox="0 0 100 100"
               preserveAspectRatio="xMidYMid meet"
-              className="pointer-events-none absolute inset-0 z-10 block h-full w-full"
+              overflow="visible"
+              shapeRendering="geometricPrecision"
+              className="pointer-events-none absolute inset-0 z-10 block h-full w-full overflow-visible"
               role="img"
               aria-label="Strike zone — current at-bat pitch locations"
             >
@@ -236,7 +270,8 @@ export function StrikeZoneCanvas({
         ) : (
           <svg
             viewBox="0 0 100 100"
-            className="mx-auto aspect-square w-full max-w-[520px] flex-1 basis-[min(100%,520px)] min-h-[300px] max-h-[min(560px,calc(100vh-220px))] lg:min-h-[380px]"
+            overflow="visible"
+            className="mx-auto aspect-square w-full max-w-[520px] flex-1 basis-[min(100%,520px)] min-h-[300px] max-h-[min(560px,calc(100vh-220px))] lg:min-h-[380px] overflow-visible"
             role="img"
             aria-label="Strike zone — current at-bat pitch locations"
           >
@@ -245,7 +280,7 @@ export function StrikeZoneCanvas({
         )}
       </div>
       {pitches.length === 0 ? (
-        <p className="shrink-0 pb-1 text-center text-[11px] text-zinc-600">
+        <p className="shrink-0 pb-1 text-center text-[11px] text-white/40">
           No pitches in this plate appearance yet.
         </p>
       ) : null}

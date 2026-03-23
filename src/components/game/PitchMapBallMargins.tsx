@@ -29,8 +29,14 @@ function computeStrikeZoneHolePx(
 ): StrikeZoneHolePx {
   const containerRect = container.getBoundingClientRect();
   const svgRect = svg.getBoundingClientRect();
-  const svgW = svgRect.width;
-  const svgH = svgRect.height;
+  // Use clientWidth/Height for viewBox→pixel scale: matches SVG’s internal mapping.
+  // getBoundingClientRect().width/height can differ by subpixels vs clientWidth in Chrome,
+  // which misaligned the HTML “hole” overlay vs drawn strike zone + grid.
+  const svgW = svg.clientWidth;
+  const svgH = svg.clientHeight;
+  if (svgW < 1 || svgH < 1) {
+    return { left: 0, top: 0, width: 0, height: 0 };
+  }
   const s = Math.min(svgW / 100, svgH / 100);
   const ox = (svgW - 100 * s) / 2;
   const oy = (svgH - 100 * s) / 2;
@@ -145,14 +151,14 @@ export function PitchMapBallMargins({
     }
     if (ballActive) {
       if (phase === "locked") {
-        return { backgroundColor: "#1d4ed8", opacity: 0.35 };
+        return { backgroundColor: "#2563FF", opacity: 0.38 };
       }
-      return { backgroundColor: "#1e40af", opacity: 0.55 };
+      return { backgroundColor: "#2563FF", opacity: 0.58 };
     }
     if (hoverOutside && interactive) {
-      return { backgroundColor: "rgb(212 212 216)", opacity: 0.28 };
+      return { backgroundColor: "rgba(37, 99, 255, 0.22)", opacity: 1 };
     }
-    return { backgroundColor: "rgb(0 0 0)", opacity: 0.04 };
+    return { backgroundColor: "rgba(6, 11, 22, 0.55)", opacity: 1 };
   }
 
   const pe = interactive ? "auto" : "none";
@@ -165,6 +171,7 @@ export function PitchMapBallMargins({
     ...style,
     pointerEvents: pe,
     cursor,
+    transition: "background-color 200ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)",
   });
 
   const usePx = holePxValid(holePx);

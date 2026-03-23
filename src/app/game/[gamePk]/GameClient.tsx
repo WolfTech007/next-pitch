@@ -15,9 +15,6 @@ import type { StrikePlacementPhase } from "@/components/game/StrikeZonePlacement
 /** Same id as `DEMO_GAME_PK` in `mlb.ts` — demo games use manual resolve only. */
 const DEMO_GAME_ID = 999999;
 
-/** Slightly zoom out on large screens so header + three columns fit in one view. */
-const GAME_PAGE_SHELL = "min-h-screen lg:[zoom:0.86]";
-
 type GamePayload = {
   demo: boolean;
   situation: GameSituation;
@@ -36,7 +33,7 @@ type GamePayload = {
 };
 
 /**
- * Live game + next-pitch betting — three-column layout (feed · zone · slip).
+ * Live game + next-pitch betting — dashboard layout (hero zone · slip · pitch history).
  */
 export function GameClient({ gamePk }: { gamePk: number }) {
   const [data, setData] = useState<GamePayload | null>(null);
@@ -183,9 +180,9 @@ export function GameClient({ gamePk }: { gamePk: number }) {
 
   if (err || !data) {
     return (
-      <div className={GAME_PAGE_SHELL}>
+      <div className="min-h-screen">
         <Header />
-        <main className="mx-auto max-w-6xl px-4 py-10 text-sm text-zinc-400">
+        <main className="mx-auto max-w-6xl px-4 py-10 text-sm text-white/55">
           {err ?? "Loading game…"}
         </main>
       </div>
@@ -204,9 +201,9 @@ export function GameClient({ gamePk }: { gamePk: number }) {
   const placementLocked = placementPhase === "locked" || placementPhase === "result";
 
   return (
-    <div className={GAME_PAGE_SHELL}>
+    <div className="min-h-screen">
       <Header />
-      <main className="mx-auto max-w-7xl px-4 py-6 lg:py-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-5 sm:px-5 lg:px-6 lg:py-7">
         <GameLiveHeader
           awayName={s.away}
           homeName={s.home}
@@ -228,11 +225,11 @@ export function GameClient({ gamePk }: { gamePk: number }) {
           onThird={s.onThird}
           footer={
             data.demo ? (
-              <p className="text-xs text-accent-amber">
+              <p className="text-xs text-np-cyan/90">
                 Demo mode — static sample board; use Demo resolve in bet history.
               </p>
             ) : (
-              <p className="text-[11px] text-zinc-600">
+              <p className="text-[11px] text-white/45">
                 {data.feedSource === "linescore" ? (
                   <>
                     Linescore mode — full pitch map when the rich live feed is available.
@@ -245,12 +242,13 @@ export function GameClient({ gamePk }: { gamePk: number }) {
           }
         />
 
-        <div className="relative flex flex-col gap-5 lg:block">
-          <div className="order-1 flex flex-col gap-5 lg:order-none lg:ml-[calc(18rem+1.5rem)] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)] lg:items-stretch lg:gap-6">
+        <div className="mt-5 grid grid-cols-12 gap-5 lg:gap-6">
+          <div className="col-span-12 min-h-[360px] xl:col-span-7">
             <StrikeZoneCanvas
               pitches={atBat}
               className="min-h-0 lg:h-full"
               betMarker={null}
+              mapPulseAwaitingPitch={placementPhase === "locked"}
               placement={{
                 phase: placementPhase,
                 draftPick: zonePick,
@@ -261,6 +259,8 @@ export function GameClient({ gamePk }: { gamePk: number }) {
                 onSelectBall,
               }}
             />
+          </div>
+          <div className="col-span-12 flex min-h-0 xl:col-span-5">
             <BetPanel
               gamePk={gamePk}
               gameLabel={`${s.away} @ ${s.home}`}
@@ -282,20 +282,25 @@ export function GameClient({ gamePk }: { gamePk: number }) {
               }}
               placementLocked={placementLocked}
               onPlaced={handleBetPlaced}
-              className="min-h-0 lg:h-full"
+              className="min-h-0 w-full lg:h-full"
             />
           </div>
-          <aside className="order-2 lg:order-none lg:absolute lg:inset-y-0 lg:left-0 lg:z-10 lg:flex lg:w-72 lg:min-w-0 lg:flex-col lg:pr-0">
-            <PitchFeedList pitches={recent} className="lg:min-h-0 lg:flex-1" />
-          </aside>
+          <div className="col-span-12 min-h-0">
+            <PitchFeedList pitches={recent} className="min-h-0 w-full" />
+          </div>
         </div>
 
-        <details className="group mt-8 overflow-hidden rounded-xl border border-zinc-800/90 bg-zinc-950/30 open:ring-1 open:ring-zinc-700/40">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-900/50 [&::-webkit-details-marker]:hidden">
-            <span className="uppercase tracking-wide text-zinc-400">Bet history</span>
-            <span className="text-zinc-500 transition group-open:rotate-180">▼</span>
+        <details
+          open
+          className="np-card group mt-6 overflow-hidden border border-white/[0.06] open:border-np-blue/20"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-np-text transition hover:bg-white/[0.03] [&::-webkit-details-marker]:hidden">
+            <span className="uppercase tracking-[0.2em] text-[11px] text-white/45">
+              Bet history
+            </span>
+            <span className="text-white/40 transition group-open:rotate-180">▼</span>
           </summary>
-          <div className="border-t border-zinc-800/80 bg-black/20 pb-2">
+          <div className="border-t border-white/[0.06] bg-black/20 pb-2">
             <BetHistory refreshKey={refresh} embedded />
           </div>
         </details>

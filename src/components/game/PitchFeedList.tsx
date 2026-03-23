@@ -15,41 +15,45 @@ function trendFromPitches(pitches: RecentPitchFeedRow[]): string | null {
 
 type Props = {
   pitches: RecentPitchFeedRow[];
-  /** On large screens, parent rail is full height when open so the list can scroll inside. */
   className?: string;
 };
 
 /**
- * Full-game recent pitches — collapsible; scroll inside so the panel does not drive page height.
+ * Full-game recent pitches — collapsible data panel.
  */
 export function PitchFeedList({ pitches, className = "" }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const trend = trendFromPitches(pitches);
 
   return (
     <div
-      className={`flex min-h-0 flex-col rounded-xl border border-zinc-800/90 bg-zinc-950/40 p-4 ${
+      className={`np-card np-card-interactive flex min-h-0 flex-col p-4 shadow-np-card ${
         open ? "lg:h-full lg:min-h-0 lg:flex-1" : "lg:h-auto lg:flex-none"
       } ${className}`}
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full cursor-pointer items-start justify-between gap-3 rounded-lg border border-transparent px-0.5 py-0.5 text-left transition hover:border-zinc-700/40 hover:bg-zinc-900/35"
+        className="flex w-full cursor-pointer items-start justify-between gap-3 rounded-np-control border border-transparent px-1 py-1 text-left transition hover:border-white/[0.06] hover:bg-white/[0.03]"
         aria-expanded={open}
       >
         <div className="min-w-0">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-            Last pitches
-          </h2>
-          <p className="mt-0.5 text-[10px] text-zinc-600">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+              Pitch feed
+            </h2>
+            <span className="rounded-full border border-np-cyan/25 bg-np-cyan/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-np-cyan/90">
+              Full game
+            </span>
+          </div>
+          <p className="mt-0.5 text-[10px] text-white/40">
             {pitches.length === 0
               ? "No feed"
-              : `${pitches.length} pitch${pitches.length === 1 ? "" : "es"} · full game`}
+              : `${pitches.length} pitch${pitches.length === 1 ? "" : "es"} logged`}
           </p>
         </div>
         <span
-          className={`mt-1 shrink-0 text-zinc-500 transition ${open ? "rotate-180" : ""}`}
+          className={`mt-1 shrink-0 text-white/40 transition ${open ? "rotate-180" : ""}`}
           aria-hidden
         >
           ▼
@@ -57,17 +61,17 @@ export function PitchFeedList({ pitches, className = "" }: Props) {
       </button>
 
       {open ? (
-        <div className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1 max-h-[min(480px,62vh)] lg:max-h-none lg:min-h-0 lg:flex-1">
+        <div className="mt-3 min-h-0 max-h-[min(480px,62vh)] flex-1 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0">
           {pitches.length === 0 ? (
-            <p className="text-xs leading-relaxed text-zinc-500">
+            <p className="text-xs leading-relaxed text-white/45">
               No live pitch feed for this game yet. Open a game with MLB play-by-play to see pitches
               here.
             </p>
           ) : (
             <>
               {trend ? (
-                <p className="mb-3 text-[11px] text-zinc-500">
-                  <span className="text-zinc-400">{trend}</span>
+                <p className="mb-3 text-[11px] text-white/45">
+                  <span className="text-np-cyan/90">{trend}</span>
                 </p>
               ) : null}
               <ul className="space-y-2 pb-1">
@@ -77,10 +81,10 @@ export function PitchFeedList({ pitches, className = "" }: Props) {
                   return (
                     <li
                       key={p.id}
-                      className={`flex items-start gap-3 rounded-lg border px-2.5 py-2 transition ${
+                      className={`flex items-start gap-3 rounded-np-control border px-2.5 py-2 transition ${
                         isLatest
-                          ? "border-zinc-600 bg-zinc-800/50 shadow-sm ring-1 ring-zinc-600/40"
-                          : "border-zinc-800/80 bg-zinc-900/30 hover:border-zinc-700"
+                          ? "border-np-blue/35 bg-np-blue/10 shadow-[0_0_24px_rgba(37,99,255,0.12)] ring-1 ring-np-blue/20"
+                          : "border-white/[0.06] bg-np-panel/40 hover:border-np-blue/20"
                       }`}
                     >
                       <span
@@ -90,11 +94,11 @@ export function PitchFeedList({ pitches, className = "" }: Props) {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                           <span className={`text-sm font-semibold ${st.text}`}>{p.pitchType}</span>
-                          <span className="font-mono text-xs text-zinc-400">
+                          <span className="font-mono text-xs text-white/45">
                             {p.speedMph != null ? `${p.speedMph.toFixed(0)} mph` : "— mph"}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-[11px] leading-snug text-zinc-500">{p.callText}</p>
+                        <p className="mt-0.5 text-[11px] leading-snug text-white/45">{p.callText}</p>
                       </div>
                     </li>
                   );

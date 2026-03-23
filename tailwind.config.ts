@@ -53,28 +53,58 @@ const config: Config = {
             filter: "none",
           },
         },
+        "np-pulse-ring": {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(37, 99, 255, 0)" },
+          "50%": { boxShadow: "0 0 28px 2px rgba(37, 99, 255, 0.25)" },
+        },
       },
       animation: {
         "bet-marker-win": "bet-marker-win 2.25s ease-out forwards",
         "bet-marker-lose": "bet-marker-lose 2.25s ease-out forwards",
+        "np-pulse": "np-pulse-ring 2.4s ease-in-out infinite",
       },
       colors: {
-        // Dark sportsbook-inspired palette
+        np: {
+          bg: "#060B16",
+          card: "#0B1220",
+          panel: "#101A30",
+          blue: "#2563FF",
+          "blue-bright": "#3B82F6",
+          cyan: "#00CFFF",
+          text: "#F5F8FF",
+          muted: "rgba(255,255,255,0.62)",
+          border: "rgba(255,255,255,0.08)",
+          success: "#22C55E",
+          danger: "#EF4444",
+        },
         surface: {
-          DEFAULT: "#0c0f14",
-          card: "#12171f",
-          raised: "#1a2029",
+          DEFAULT: "#060B16",
+          card: "#0B1220",
+          raised: "#101A30",
         },
         accent: {
           green: "#22c55e",
           amber: "#f59e0b",
           red: "#ef4444",
-          blue: "#38bdf8",
+          blue: "#3b82f6",
         },
       },
+      boxShadow: {
+        "np-card":
+          "0 0 0 1px rgba(255,255,255,0.04), 0 14px 44px rgba(0,0,0,0.52), 0 0 72px rgba(37,99,255,0.07)",
+        "np-card-lg":
+          "0 0 0 1px rgba(255,255,255,0.07), 0 18px 52px rgba(0,0,0,0.55), 0 0 88px rgba(37,99,255,0.11)",
+      },
+      transitionDuration: {
+        np: "200ms",
+      },
+      borderRadius: {
+        "np-card": "20px",
+        "np-control": "12px",
+      },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "monospace"],
       },
     },
   },

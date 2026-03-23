@@ -2,11 +2,244 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base page styling — dark sportsbook feel */
+/* —— Next Pitch: premium command-center polish (tokens + surfaces) —— */
 :root {
   color-scheme: dark;
+
+  --np-bg-deep: #030712;
+  --np-bg: #060b16;
+  --np-bg-grad-start: #0a1020;
+  --np-bg-grad-mid: #060b16;
+  --np-bg-grad-end: #030712;
+
+  --np-card-top: rgba(16, 32, 58, 0.55);
+  --np-card-mid: rgba(11, 18, 32, 0.94);
+  --np-card-bot: rgba(6, 11, 22, 0.96);
+  --np-card-solid: #0b1220;
+  --np-panel: #101a30;
+  --np-panel-highlight: #12203a;
+
+  --np-blue: #2563ff;
+  --np-blue-bright: #3b82f6;
+  --np-cyan: #00cfff;
+
+  --np-text: #f5f8ff;
+  --np-text-secondary: rgba(255, 255, 255, 0.62);
+  --np-border: rgba(255, 255, 255, 0.065);
+  --np-border-mid: rgba(255, 255, 255, 0.08);
+  --np-border-strong: rgba(255, 255, 255, 0.1);
+
+  --np-success: #22c55e;
+  --np-danger: #ef4444;
+  --np-warn: #f59e0b;
+
+  --np-hover: rgba(255, 255, 255, 0.06);
+
+  --np-radius-card: 20px;
+  --np-radius-control: 12px;
+
+  --np-shadow-card:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 1px 0 rgba(255, 255, 255, 0.045) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 14px 44px rgba(0, 0, 0, 0.52),
+    0 0 72px rgba(37, 99, 255, 0.07);
+
+  --np-shadow-card-hover:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 18px 52px rgba(0, 0, 0, 0.55),
+    0 0 88px rgba(37, 99, 255, 0.11);
+
+  --np-ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --np-transition: 220ms var(--np-ease-out);
+  --np-transition-fast: 160ms var(--np-ease-out);
+
+  --font-sans: var(--font-inter, ui-sans-serif), system-ui, sans-serif;
+
+  /* SVG data-URI: subtle film grain (4% opacity applied in layer) */
+  --np-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
-body {
-  @apply bg-surface text-zinc-100 antialiased min-h-screen;
+@layer base {
+  html {
+    @apply min-h-full;
+  }
+
+  /* Ambient light + vignette + base gradient + imperceptible grain — all on body, no overlay stacking issues */
+  body {
+    @apply min-h-screen antialiased;
+    font-family: var(--font-sans);
+    color: var(--np-text);
+    background-color: var(--np-bg-deep);
+    background-image:
+      radial-gradient(ellipse 90% 55% at 8% -8%, rgba(37, 99, 255, 0.11), transparent 52%),
+      radial-gradient(ellipse 75% 50% at 92% 4%, rgba(0, 207, 255, 0.045), transparent 48%),
+      radial-gradient(ellipse 85% 70% at 50% 48%, transparent 40%, rgba(0, 0, 0, 0.42) 100%),
+      linear-gradient(180deg, var(--np-bg-grad-start) 0%, var(--np-bg-grad-mid) 42%, var(--np-bg-grad-end) 100%);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+    background-blend-mode: normal, normal, multiply, normal;
+    background-attachment: fixed;
+  }
+
+  /* Film grain — fixed, non-interactive, barely visible (paints under page content) */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.028;
+    mix-blend-mode: overlay;
+    background-image: var(--np-noise);
+    background-size: 256px 256px;
+    background-repeat: repeat;
+  }
+}
+
+@layer components {
+  .np-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--np-radius-card);
+    border: 1px solid var(--np-border-mid);
+    background: linear-gradient(
+      165deg,
+      var(--np-card-top) 0%,
+      var(--np-card-mid) 45%,
+      var(--np-card-bot) 100%
+    );
+    box-shadow: var(--np-shadow-card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition:
+      box-shadow var(--np-transition),
+      transform var(--np-transition),
+      border-color var(--np-transition);
+  }
+
+  .np-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.055) 0%,
+      transparent 38%,
+      transparent 100%
+    );
+    opacity: 0.55;
+  }
+
+  .np-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .np-card-interactive:hover {
+    box-shadow: var(--np-shadow-card-hover);
+    border-color: var(--np-border-strong);
+    transform: translateY(-1px);
+  }
+
+  .np-btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white;
+    background: linear-gradient(180deg, #3d8bff 0%, #2563ff 48%, #1d4ed8 100%);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+      0 1px 0 rgba(255, 255, 255, 0.12) inset,
+      0 0 0 1px rgba(37, 99, 255, 0.35),
+      0 4px 20px rgba(37, 99, 255, 0.28),
+      0 8px 36px rgba(0, 0, 0, 0.35);
+    transition:
+      transform var(--np-transition-fast),
+      box-shadow var(--np-transition-fast),
+      filter var(--np-transition-fast);
+  }
+  .np-btn-primary:hover:not(:disabled) {
+    filter: brightness(1.05);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.14) inset,
+      0 1px 0 rgba(255, 255, 255, 0.14) inset,
+      0 0 0 1px rgba(59, 130, 246, 0.45),
+      0 6px 28px rgba(37, 99, 255, 0.38),
+      0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+  .np-btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
+    filter: brightness(0.98);
+  }
+
+  .np-btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl border px-4 py-2.5 text-sm font-medium;
+    border-color: var(--np-border-mid);
+    background: linear-gradient(180deg, rgba(22, 32, 58, 0.75) 0%, rgba(12, 18, 34, 0.85) 100%);
+    color: var(--np-text-secondary);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25) inset;
+    transition:
+      background var(--np-transition-fast),
+      border-color var(--np-transition-fast),
+      color var(--np-transition-fast),
+      box-shadow var(--np-transition-fast);
+  }
+  .np-btn-secondary:hover {
+    background: linear-gradient(180deg, rgba(30, 45, 82, 0.85) 0%, rgba(16, 24, 44, 0.9) 100%);
+    color: var(--np-text);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.3) inset,
+      0 0 20px rgba(37, 99, 255, 0.08);
+  }
+
+  .np-input {
+    @apply w-full rounded-xl border px-3 py-2.5 text-sm outline-none;
+    border-color: var(--np-border-mid);
+    background: linear-gradient(180deg, rgba(5, 9, 18, 0.92) 0%, rgba(8, 14, 26, 0.88) 100%);
+    color: var(--np-text);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
+    transition:
+      border-color var(--np-transition-fast),
+      box-shadow var(--np-transition-fast);
+  }
+  .np-input:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .np-input:focus {
+    border-color: rgba(37, 99, 255, 0.55);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+      0 0 0 3px rgba(37, 99, 255, 0.18);
+  }
+
+  .np-pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider;
+    background: rgba(37, 99, 255, 0.12);
+    color: var(--np-blue-bright);
+    border: 1px solid rgba(37, 99, 255, 0.28);
+    box-shadow: 0 0 16px rgba(37, 99, 255, 0.08);
+  }
+
+  .np-hero-pulse {
+    animation: np-hero-pulse 2.6s var(--np-ease-out) infinite;
+  }
+
+  @keyframes np-hero-pulse {
+    0%,
+    100% {
+      box-shadow:
+        var(--np-shadow-card),
+        0 0 0 0 rgba(37, 99, 255, 0);
+    }
+    50% {
+      box-shadow:
+        var(--np-shadow-card),
+        0 0 40px rgba(37, 99, 255, 0.14);
+    }
+  }
 }

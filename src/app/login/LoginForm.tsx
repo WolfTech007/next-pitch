@@ -38,58 +38,58 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
 
   return (
     <>
-      <p className="text-center text-xs font-semibold uppercase tracking-widest text-accent-blue">
+      <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-np-cyan/90">
         Next Pitch
       </p>
-      <h1 className="mt-2 text-center text-2xl font-bold text-white">Sign in</h1>
-      <p className="mt-2 text-center text-sm text-zinc-500">
+      <h1 className="mt-2 text-center text-2xl font-bold tracking-tight text-np-text">Sign in</h1>
+      <p className="mt-2 text-center text-sm text-white/50">
         Use your account so your balance and bet history stay yours.
       </p>
 
       <form
         onSubmit={onSubmit}
-        className="mt-8 space-y-4 rounded-2xl border border-zinc-800/90 bg-zinc-950/60 p-6 shadow-xl ring-1 ring-zinc-800/50"
+        className="np-card mt-8 space-y-4 rounded-np-card border border-white/[0.06] p-6 shadow-np-card"
       >
-        <label className="block text-[11px] font-medium text-zinc-500">
+        <label className="block text-[11px] font-medium text-white/45">
           Email
           <input
             type="email"
             autoComplete="email"
             required
-            className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-black/40 px-3 py-2.5 text-sm text-white outline-none ring-0 focus:border-amber-500/50"
+            className="np-input mt-1.5"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </label>
-        <label className="block text-[11px] font-medium text-zinc-500">
+        <label className="block text-[11px] font-medium text-white/45">
           Password
           <input
             type="password"
             autoComplete="current-password"
             required
-            className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-black/40 px-3 py-2.5 text-sm text-white outline-none focus:border-amber-500/50"
+            className="np-input mt-1.5"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {err ? <p className="text-sm text-red-400">{err}</p> : null}
+        {err ? <p className="text-sm text-np-danger">{err}</p> : null}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-amber-500/90 py-2.5 text-sm font-semibold text-black transition hover:bg-amber-400 disabled:opacity-50"
+          className="np-btn-primary w-full py-2.5 text-sm disabled:opacity-50"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-500">
+      <p className="mt-6 text-center text-sm text-white/45">
         No account?{" "}
-        <Link href="/register" className="text-amber-500/90 hover:text-amber-400">
+        <Link href="/register" className="font-medium text-np-blue-bright hover:underline">
           Create one
         </Link>
       </p>
       <p className="mt-4 text-center">
-        <Link href="/" className="text-xs text-zinc-600 hover:text-zinc-400">
+        <Link href="/" className="text-xs text-white/35 hover:text-white/55">
           ← Back to games
         </Link>
       </p>
