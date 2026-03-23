@@ -11,7 +11,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ user: null, balance: null });
     }
     const store = normalizeStoreData(await readStore(session.userId));
-    const { enabled: demoMode } = await resolveDemoModeForApi(req);
+    const { enabled: demoMode } = await resolveDemoModeForApi(req, { store });
     const balance = demoMode ? store.demoBalance ?? 1000 : store.balance;
     return NextResponse.json({
       user: { id: session.userId, email: session.email },

@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
   const store = normalizeStoreData(await readStore(session.userId));
-  const { enabled: demoMode } = await resolveDemoModeForApi(req);
+  const { enabled: demoMode } = await resolveDemoModeForApi(req, { store });
   if (demoMode) {
     return NextResponse.json({
       balance: store.demoBalance ?? 1000,

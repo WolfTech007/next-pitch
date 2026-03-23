@@ -125,6 +125,7 @@ export async function POST(req: Request) {
   const store = normalizeStoreData(await readStore(session.userId));
   const { enabled: demoMode } = await resolveDemoModeForApi(req, {
     clientAssertDemo: body.clientDemoMode === true,
+    store,
   });
 
   const liveBal = store.balance;

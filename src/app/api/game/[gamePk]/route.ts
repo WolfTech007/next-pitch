@@ -104,9 +104,12 @@ export async function GET(_req: Request, segment: Params) {
     });
   }
 
-  const { enabled: demoMode } = await resolveDemoModeForApi(_req);
+  const session = await getSession();
+  const storeForDemo = session
+    ? normalizeStoreData(await readStore(session.userId))
+    : null;
+  const { enabled: demoMode } = await resolveDemoModeForApi(_req, { store: storeForDemo });
   if (demoMode) {
-    const session = await getSession();
     let pitchIndex = 0;
     let settledCount = 0;
 

@@ -33,12 +33,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "gamePk required" }, { status: 400 });
   }
 
+  const store = normalizeStoreData(await readStore(session.userId));
   const { enabled: demoMode } = await resolveDemoModeForApi(req, {
     clientAssertDemo: body.clientDemoMode === true,
+    store,
   });
 
   if (demoMode) {
-    const store = normalizeStoreData(await readStore(session.userId));
     const { timeline } = await loadDemoFeedAndTimeline(gamePk);
     const maxIdx = Math.max(0, timeline.length - 1);
     const adv = applyDemoReplayAdvanceIfDue(store, gamePk, maxIdx);
@@ -56,19 +57,19 @@ export async function POST(req: Request) {
     });
   }
 
-  const [store, feed] = await Promise.all([
+  const [storeLive, feed] = await Promise.all([
     readStore(session.userId),
     fetchLiveFeed(gamePk),
   ]);
-  const { settled } = await autoResolvePendingForGame(gamePk, store, feed);
+  const { settled } = await autoResolvePendingForGame(gamePk, storeLive, feed);
   if (settled.length > 0) {
-    await writeStore(session.userId, store);
+    await writeStore(session.userId, storeLive);
   }
 
   return NextResponse.json({
     ok: true,
     settledCount: settled.length,
     settledIds: settled.map((b) => b.id),
-    balance: store.balance,
+    balance: storeLive.balance,
   });
 }

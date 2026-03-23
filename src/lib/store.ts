@@ -75,6 +75,12 @@ export type StoreData = {
   demoBets?: StoredBet[];
   /** Demo mode: per-game replay index + delayed advance after bets (see `demo-replay-state`). */
   demoReplayByGamePk?: Record<string, { pitchIndex: number; advanceAtMs: number | null }>;
+  /**
+   * Persisted when the user toggles demo (POST /api/demo-mode). Source of truth on Vercel
+   * when browser cookies are unreliable; merges with cookies in resolveDemoModeForApi.
+   */
+  demoModePreference?: boolean;
+  demoScheduleDate?: string | null;
 };
 
 export function defaultStoreData(): StoreData {

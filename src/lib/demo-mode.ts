@@ -1,4 +1,6 @@
 import { cookies, headers } from "next/headers";
+import type { StoreData } from "@/lib/store";
+import { normalizeStoreData, readStore } from "@/lib/store";
 import {
   NP_DEMO_DATE_COOKIE,
   NP_DEMO_DATE_HEADER,
@@ -113,14 +115,44 @@ export async function readDemoModeFromCookies(): Promise<{
 }
 
 /**
- * API routes: same as cookies/headers, plus optional `?np_demo=1` and JSON
- * `{ clientDemoMode: true }` so the server matches the browser when cookies are missing on Vercel.
+ * RSC pages: cookies + per-user Redis preference (set when logged-in user toggles demo).
+ */
+export async function resolveDemoModeForServerComponents(
+  session: { userId: string } | null,
+): Promise<{ enabled: boolean; date: string | null }> {
+  const base = await readDemoModeFromCookies();
+  if (base.enabled) return base;
+  if (session) {
+    const store = normalizeStoreData(await readStore(session.userId));
+    if (store.demoModePreference === true) {
+      const d = store.demoScheduleDate;
+      return {
+        enabled: true,
+        date: d && d.length >= 8 ? d : DEMO_SCHEDULE_DATES[0] ?? null,
+      };
+    }
+  }
+  return base;
+}
+
+/**
+ * API routes: Redis preference first, then cookies/headers, plus optional `?np_demo=1` and JSON
+ * `{ clientDemoMode: true }` when cookies are missing on Vercel.
  */
 export async function resolveDemoModeForApi(
   req: Request | null,
-  options?: { clientAssertDemo?: boolean },
+  options?: { clientAssertDemo?: boolean; store?: StoreData | null },
 ): Promise<{ enabled: boolean; date: string | null }> {
   const base = await readDemoModeFromCookies();
+
+  if (options?.store?.demoModePreference === true) {
+    const d = options.store.demoScheduleDate;
+    return {
+      enabled: true,
+      date: d && d.length >= 8 ? d : DEMO_SCHEDULE_DATES[0] ?? null,
+    };
+  }
+
   if (base.enabled) return base;
 
   if (options?.clientAssertDemo === true) {

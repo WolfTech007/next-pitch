@@ -3,7 +3,8 @@ import { unstable_noStore as noStore } from "next/cache";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { Header } from "@/components/Header";
 import { LiveGameScoreboardCard } from "@/components/LiveGameScoreboardCard";
-import { readDemoModeFromCookies } from "@/lib/demo-mode";
+import { getSession } from "@/lib/auth/session";
+import { resolveDemoModeForServerComponents } from "@/lib/demo-mode";
 import { buildDemoFallbackHomeCards } from "@/lib/demo-fallback-home-cards";
 import { decorateDemoHomeCards } from "@/lib/demo-home-presentation";
 import {
@@ -20,7 +21,8 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   noStore();
   try {
-    const { enabled: demoMode, date: demoDate } = await readDemoModeFromCookies();
+    const { enabled: demoMode, date: demoDate } =
+      await resolveDemoModeForServerComponents(await getSession());
     const date =
       demoMode && demoDate && demoDate.length >= 8 ? demoDate : getEasternDateString();
     let cards = await loadHomeGameCardsForDate(date, {

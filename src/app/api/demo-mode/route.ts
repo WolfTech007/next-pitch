@@ -4,6 +4,8 @@ import {
   NP_DEMO_MODE_COOKIE,
   pickRandomDemoDate,
 } from "@/lib/demo-mode";
+import { getSession } from "@/lib/auth/session";
+import { normalizeStoreData, readStore, writeStore } from "@/lib/store";
 
 const COOKIE_BASE = {
   path: "/",
@@ -33,6 +35,23 @@ export async function POST(req: Request) {
   } else {
     res.cookies.set(NP_DEMO_MODE_COOKIE, "0", COOKIE_BASE);
     res.cookies.delete(NP_DEMO_DATE_COOKIE);
+  }
+
+  try {
+    const session = await getSession();
+    if (session) {
+      const store = normalizeStoreData(await readStore(session.userId));
+      if (enabled && date) {
+        store.demoModePreference = true;
+        store.demoScheduleDate = date;
+      } else {
+        store.demoModePreference = false;
+        store.demoScheduleDate = null;
+      }
+      await writeStore(session.userId, store);
+    }
+  } catch {
+    /* cookies still apply; Redis optional in dev */
   }
 
   return res;
