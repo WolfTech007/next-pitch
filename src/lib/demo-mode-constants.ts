@@ -1,0 +1,12 @@
+/** Cookie + request-header names for demo slate / fake wallet (shared server + client). */
+
+export const NP_DEMO_MODE_COOKIE = "np_demo_mode";
+export const NP_DEMO_DATE_COOKIE = "np_demo_date";
+
+/**
+ * Browser sends these on fetch so Route Handlers agree with `document.cookie` when the
+ * Cookie header is missing or not exposed to `cookies()` on Vercel.
+ */
+export const NP_DEMO_MODE_HEADER = "x-np-demo-mode";
+export const NP_DEMO_DATE_HEADER = "x-np-demo-date";
+export const NP_DEMO_HEADER_ON = "1";

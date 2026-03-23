@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { demoModeRequestHeaders } from "@/lib/demo-mode-client";
 import { BetHistory } from "@/components/BetHistory";
 import { BetPanel } from "@/components/BetPanel";
 import { GameLiveHeader } from "@/components/game/GameLiveHeader";
@@ -110,7 +111,11 @@ export function GameClient({
     let cancelled = false;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/bets");
+        const res = await fetch("/api/bets", {
+          credentials: "include",
+          cache: "no-store",
+          headers: demoModeRequestHeaders(),
+        });
         if (!res.ok || cancelled) return;
         const j = (await res.json()) as { bets?: StoredBet[] };
         const bets = Array.isArray(j.bets) ? j.bets : [];
@@ -166,7 +171,11 @@ export function GameClient({
         : 750;
     async function load() {
       try {
-        const res = await fetch(`/api/game/${gamePk}`, { cache: "no-store" });
+        const res = await fetch(`/api/game/${gamePk}`, {
+          cache: "no-store",
+          credentials: "include",
+          headers: demoModeRequestHeaders(),
+        });
         const j = (await res.json()) as GamePayload & { error?: string };
         if (!res.ok) throw new Error(j.error ?? "Load failed");
         if (!cancelled) {

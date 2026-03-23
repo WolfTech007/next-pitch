@@ -1,7 +1,19 @@
 import { cookies, headers } from "next/headers";
+import {
+  NP_DEMO_DATE_COOKIE,
+  NP_DEMO_DATE_HEADER,
+  NP_DEMO_HEADER_ON,
+  NP_DEMO_MODE_COOKIE,
+  NP_DEMO_MODE_HEADER,
+} from "@/lib/demo-mode-constants";
 
-export const NP_DEMO_MODE_COOKIE = "np_demo_mode";
-export const NP_DEMO_DATE_COOKIE = "np_demo_date";
+export {
+  NP_DEMO_DATE_COOKIE,
+  NP_DEMO_DATE_HEADER,
+  NP_DEMO_HEADER_ON,
+  NP_DEMO_MODE_COOKIE,
+  NP_DEMO_MODE_HEADER,
+} from "@/lib/demo-mode-constants";
 
 /** Eastern-calendar dates with full MLB slates (summer weekends + opening week). */
 export const DEMO_SCHEDULE_DATES: string[] = [
@@ -67,15 +79,26 @@ export async function readDemoModeFromCookies(): Promise<{
   date: string | null;
 }> {
   const jar = await cookies();
+  const h = await headers();
   let enabled = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
   let date = jar.get(NP_DEMO_DATE_COOKIE)?.value ?? null;
 
-  const raw = (await headers()).get("cookie");
+  const raw = h.get("cookie");
   if (!enabled) {
     enabled = readDemoModeFromCookieHeader(raw);
   }
   if (!date) {
     date = parseCookieValue(raw, NP_DEMO_DATE_COOKIE);
+  }
+
+  if (!enabled && h.get(NP_DEMO_MODE_HEADER) === NP_DEMO_HEADER_ON) {
+    enabled = true;
+  }
+  if (!date) {
+    const dh = h.get(NP_DEMO_DATE_HEADER);
+    if (dh && /^\d{4}-\d{2}-\d{2}/.test(dh)) {
+      date = dh.slice(0, 10);
+    }
   }
 
   if (enabled && (!date || date.length < 8)) {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { demoModeRequestHeaders } from "@/lib/demo-mode-client";
 
 type Me = {
   user: { id: string; email: string } | null;
@@ -19,7 +20,11 @@ export function Header() {
   useEffect(() => {
     let cancelled = false;
     async function tick() {
-      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      const res = await fetch("/api/auth/me", {
+        cache: "no-store",
+        credentials: "include",
+        headers: demoModeRequestHeaders(),
+      });
       if (!res.ok || cancelled) return;
       const data = (await res.json()) as Me;
       if (!cancelled) setMe(data);

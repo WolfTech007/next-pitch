@@ -14,6 +14,7 @@ import {
   type VelocityBucket,
   type ZonePick,
 } from "@/lib/markets";
+import { demoModeRequestHeaders } from "@/lib/demo-mode-client";
 import { countBasedHint } from "@/lib/countHint";
 import { potentialPayout, quoteOdds } from "@/lib/odds";
 
@@ -102,7 +103,11 @@ export function BetPanel({
 
   useEffect(() => {
     async function loadDefault() {
-      const res = await fetch("/api/bets");
+      const res = await fetch("/api/bets", {
+        credentials: "include",
+        cache: "no-store",
+        headers: demoModeRequestHeaders(),
+      });
       const data = await res.json();
       if (typeof data.defaultUnitSize === "number") {
         setStake(String(data.defaultUnitSize));
@@ -176,7 +181,11 @@ export function BetPanel({
       try {
         const res = await fetch("/api/bet", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            ...demoModeRequestHeaders(),
+          },
           body: JSON.stringify({
             gamePk,
             gameLabel,
