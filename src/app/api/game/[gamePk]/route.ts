@@ -1,5 +1,7 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { autoResolvePendingForGame } from "@/lib/betResolve";
+import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
+import { NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
 import {
   DEMO_GAME_PK,
   type LiveGameSummary,
@@ -17,8 +19,9 @@ import {
   parseSituationFromLinescore,
   randomDemoPitch,
 } from "@/lib/mlb";
+import { buildDemoModeGamePayload } from "@/lib/simulate-demo-game";
 import { getSession } from "@/lib/auth/session";
-import { readStore, writeStore } from "@/lib/store";
+import { normalizeStoreData, readStore, writeStore } from "@/lib/store";
 
 type Params = { params: Promise<{ gamePk: string }> };
 
@@ -69,7 +72,7 @@ export async function GET(_req: Request, segment: Params) {
   if (gamePk === DEMO_GAME_PK) {
     const pitch = randomDemoPitch();
     return NextResponse.json({
-      demo: true,
+      demo: false,
       settledCount: 0,
       situation: {
         gamePk,
@@ -95,6 +98,50 @@ export async function GET(_req: Request, segment: Params) {
       recentPitches: [],
       atBatPitches: [],
     });
+  }
+
+  const jar = await cookies();
+  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  if (demoMode) {
+    const built = await buildDemoModeGamePayload(gamePk);
+    if (!built) {
+      return NextResponse.json(
+        {
+          error:
+            "Could not load this game from MLB (linescore/boxscore). Try another game or turn off Demo mode.",
+        },
+        { status: 502 },
+      );
+    }
+    let settledCount = 0;
+    const session = await getSession();
+    if (session) {
+      const store = normalizeStoreData(await readStore(session.userId));
+      const { settled } = await autoResolveDemoPendingForGame(gamePk, store, built.playCount);
+      settledCount = settled.length;
+      if (settledCount > 0) {
+        await writeStore(session.userId, store);
+      }
+    }
+    return NextResponse.json(
+      {
+        demo: false,
+        situation: built.situation,
+        playCount: built.playCount,
+        feedSource: built.feedSource,
+        settledCount,
+        score: built.score,
+        teamAbbr: built.teamAbbr,
+        recentPitches: built.recentPitches,
+        atBatPitches: built.atBatPitches,
+        lastPitchPreview: built.lastPitchPreview,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      },
+    );
   }
 
   const [feed, linescore] = await Promise.all([
@@ -187,7 +234,7 @@ export async function GET(_req: Request, segment: Params) {
   if (feed && gamePk !== DEMO_GAME_PK) {
     const session = await getSession();
     if (session) {
-      const store = await readStore(session.userId);
+      const store = normalizeStoreData(await readStore(session.userId));
       const { settled } = await autoResolvePendingForGame(gamePk, store, feed);
       settledCount = settled.length;
       if (settledCount > 0) {

@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
-import { readStore } from "@/lib/store";
+import { normalizeStoreData, readStore } from "@/lib/store";
 
 /**
  * GET /api/bets
@@ -11,7 +13,16 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
-  const store = await readStore(session.userId);
+  const store = normalizeStoreData(await readStore(session.userId));
+  const jar = await cookies();
+  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  if (demoMode) {
+    return NextResponse.json({
+      balance: store.demoBalance ?? 1000,
+      defaultUnitSize: store.demoDefaultUnitSize ?? store.defaultUnitSize,
+      bets: (store.demoBets ?? []).slice(0, 50),
+    });
+  }
   return NextResponse.json({
     balance: store.balance,
     defaultUnitSize: store.defaultUnitSize,

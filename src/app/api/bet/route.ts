@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { randomUUID } from "crypto";
+import { NP_DEMO_MODE_COOKIE, simulatedPlayCount } from "@/lib/demo-mode";
 import { quoteOdds } from "@/lib/odds";
 import {
   isValidBattingResult,
@@ -19,7 +21,7 @@ import {
   scoreboardChanged,
 } from "@/lib/mlb";
 import { getSession } from "@/lib/auth/session";
-import { readStore, writeStore, type ScoreboardSnapshot } from "@/lib/store";
+import { normalizeStoreData, readStore, writeStore, type ScoreboardSnapshot } from "@/lib/store";
 
 const MIN_STAKE = 0.1;
 const MAX_STAKE = 200;
@@ -112,8 +114,17 @@ export async function POST(req: Request) {
     );
   }
 
-  const store = await readStore(session.userId);
-  if (store.balance < stake) {
+  const store = normalizeStoreData(await readStore(session.userId));
+  const jar = await cookies();
+  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+
+  const liveBal = store.balance;
+  const demoBal = store.demoBalance ?? 1000;
+  if (demoMode) {
+    if (demoBal < stake) {
+      return NextResponse.json({ error: "Insufficient fake balance." }, { status: 400 });
+    }
+  } else if (liveBal < stake) {
     return NextResponse.json({ error: "Insufficient fake balance." }, { status: 400 });
   }
 
@@ -121,7 +132,21 @@ export async function POST(req: Request) {
   let pitchSignatureAtBet: string | null = null;
   let scoreboardAtBet: ScoreboardSnapshot | undefined;
 
-  if (gamePk === DEMO_GAME_PK) {
+  if (demoMode && gamePk !== DEMO_GAME_PK) {
+    const clientBoard = parseScoreboardBody(body.scoreboardAtBet);
+    if (!clientBoard) {
+      return NextResponse.json(
+        {
+          error:
+            "We need the current balls/strikes from the scoreboard. Refresh the game page, then submit before the next pitch.",
+        },
+        { status: 400 },
+      );
+    }
+    scoreboardAtBet = clientBoard;
+    playCountAtBet = simulatedPlayCount(gamePk);
+    pitchSignatureAtBet = null;
+  } else if (gamePk === DEMO_GAME_PK) {
     playCountAtBet = 0;
     pitchSignatureAtBet = null;
   } else {
@@ -213,10 +238,18 @@ export async function POST(req: Request) {
     ...(scoreboardAtBet ? { scoreboardAtBet } : {}),
   };
 
-  store.balance -= stake;
-  store.bets.unshift(bet);
-  store.defaultUnitSize = stake;
+  if (demoMode) {
+    store.demoBalance = (store.demoBalance ?? 1000) - stake;
+    store.demoBets = store.demoBets ?? [];
+    store.demoBets.unshift(bet);
+    store.demoDefaultUnitSize = stake;
+  } else {
+    store.balance -= stake;
+    store.bets.unshift(bet);
+    store.defaultUnitSize = stake;
+  }
   await writeStore(session.userId, store);
 
-  return NextResponse.json({ ok: true, bet, balance: store.balance, quote: q });
+  const balOut = demoMode ? store.demoBalance! : store.balance;
+  return NextResponse.json({ ok: true, bet, balance: balOut, quote: q });
 }

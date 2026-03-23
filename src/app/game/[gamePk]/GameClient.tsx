@@ -16,7 +16,6 @@ import type { StrikePlacementPhase } from "@/components/game/StrikeZonePlacement
 const DEMO_GAME_ID = 999999;
 
 type GamePayload = {
-  demo: boolean;
   situation: GameSituation;
   playCount: number;
   feedSource?: "live_feed" | "linescore";
@@ -224,21 +223,15 @@ export function GameClient({ gamePk }: { gamePk: number }) {
           onSecond={s.onSecond}
           onThird={s.onThird}
           footer={
-            data.demo ? (
-              <p className="text-xs text-np-cyan/90">
-                Demo mode — static sample board; use Demo resolve in bet history.
-              </p>
-            ) : (
-              <p className="text-[11px] text-white/45">
-                {data.feedSource === "linescore" ? (
-                  <>
-                    Linescore mode — full pitch map when the rich live feed is available.
-                  </>
-                ) : (
-                  <>Play-by-play connected — pending slips auto-settle on the next pitch.</>
-                )}
-              </p>
-            )
+            <p className="text-[11px] text-white/45">
+              {data.feedSource === "linescore" ? (
+                <>
+                  Linescore mode — full pitch map when the rich live feed is available.
+                </>
+              ) : (
+                <>Play-by-play connected — pending slips auto-settle on the next pitch.</>
+              )}
+            </p>
           }
         />
 

@@ -26,7 +26,7 @@ export async function tryResolveBet(
   bet: StoredBet,
   store: StoreData,
   forceDemo: boolean,
-  options?: { feed?: unknown },
+  options?: { feed?: unknown; wallet?: "live" | "demo" },
 ): Promise<ResolveAttemptResult> {
   if (bet.status !== "pending") {
     return { ok: false, code: "no_new_pitch" };
@@ -88,10 +88,78 @@ export async function tryResolveBet(
   };
   bet.payout = payout;
   if (won) {
-    store.balance += payout;
+    const w = options?.wallet ?? "live";
+    if (w === "demo") {
+      if (store.demoBalance == null) store.demoBalance = 1000;
+      store.demoBalance += payout;
+    } else {
+      store.balance += payout;
+    }
   }
 
   return { ok: true, won, payout, outcome, bet };
+}
+
+/**
+ * Demo-mode “live” sim: resolve when synthetic play count advances past the slip anchor.
+ */
+export async function tryResolveBetDemoSim(
+  bet: StoredBet,
+  store: StoreData,
+  currentPlayCount: number,
+): Promise<ResolveAttemptResult> {
+  if (bet.status !== "pending") {
+    return { ok: false, code: "no_new_pitch" };
+  }
+  if (currentPlayCount <= (bet.playCountAtBet ?? 0)) {
+    return { ok: false, code: "no_new_pitch" };
+  }
+  const outcome = randomDemoPitch();
+  const won = slipWins(bet.selections, outcome);
+  const gross = potentialPayout(bet.stake, bet.offeredOdds);
+  const payout = won ? gross : 0;
+  bet.status = won ? "won" : "lost";
+  bet.resolvedAt = new Date().toISOString();
+  bet.outcome = {
+    pitchType: outcome.pitchType,
+    velocity: outcome.velocity,
+    location: outcome.location,
+    zoneCell: outcome.zoneCell,
+    ...(outcome.battingResult != null
+      ? { battingResult: outcome.battingResult }
+      : {}),
+    ...(outcome.speedMph != null ? { speedMph: outcome.speedMph } : {}),
+  };
+  bet.payout = payout;
+  if (won) {
+    if (store.demoBalance == null) store.demoBalance = 1000;
+    store.demoBalance += payout;
+  }
+  return { ok: true, won, payout, outcome, bet };
+}
+
+/**
+ * Auto-settle demo-wallet pending slips (FIFO) when sim play count advances.
+ */
+export async function autoResolveDemoPendingForGame(
+  gamePk: number,
+  store: StoreData,
+  currentPlayCount: number,
+): Promise<{ settled: StoredBet[] }> {
+  const list = store.demoBets ?? [];
+  const pending = list
+    .filter((b) => b.gamePk === gamePk && b.status === "pending")
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+  const settled: StoredBet[] = [];
+  for (const bet of pending) {
+    const r = await tryResolveBetDemoSim(bet, store, currentPlayCount);
+    if (r.ok) settled.push(r.bet);
+    else break;
+  }
+  return { settled };
 }
 
 /**

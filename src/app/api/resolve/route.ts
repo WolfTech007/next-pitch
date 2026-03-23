@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { tryResolveBet } from "@/lib/betResolve";
+import { tryResolveBet, tryResolveBetDemoSim } from "@/lib/betResolve";
+import { simulatedPlayCount } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
-import { readStore, writeStore } from "@/lib/store";
+import { normalizeStoreData, readStore, writeStore } from "@/lib/store";
 
 /**
  * POST /api/resolve
@@ -26,25 +27,34 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "betId required" }, { status: 400 });
   }
 
-  const store = await readStore(session.userId);
-  const bet = store.bets.find((b) => b.id === betId);
+  const store = normalizeStoreData(await readStore(session.userId));
+  const bet =
+    store.bets.find((b) => b.id === betId) ??
+    (store.demoBets ?? []).find((b) => b.id === betId);
   if (!bet) {
     return NextResponse.json({ error: "Bet not found" }, { status: 404 });
   }
+  const wallet: "live" | "demo" = (store.demoBets ?? []).some((b) => b.id === betId)
+    ? "demo"
+    : "live";
   /**
    * Auto-resolve may have settled this slip while the UI still showed “pending”.
    * Treat as success so the client can refresh — not a user error.
    */
   if (bet.status !== "pending") {
+    const bal = wallet === "demo" ? store.demoBalance ?? 1000 : store.balance;
     return NextResponse.json({
       ok: true,
       alreadySettled: true,
       bet,
-      balance: store.balance,
+      balance: bal,
     });
   }
 
-  const result = await tryResolveBet(bet, store, forceDemo);
+  const result =
+    wallet === "demo" && !forceDemo
+      ? await tryResolveBetDemoSim(bet, store, simulatedPlayCount(bet.gamePk))
+      : await tryResolveBet(bet, store, forceDemo, { wallet });
 
   if (!result.ok) {
     if (result.code === "no_feed") {
@@ -77,12 +87,13 @@ export async function POST(req: Request) {
 
   await writeStore(session.userId, store);
 
+  const balOut = wallet === "demo" ? store.demoBalance ?? 1000 : store.balance;
   return NextResponse.json({
     ok: true,
     won: result.won,
     outcome: result.outcome,
     payout: result.payout,
-    balance: store.balance,
+    balance: balOut,
     bet: result.bet,
   });
 }

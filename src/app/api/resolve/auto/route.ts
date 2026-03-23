@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { autoResolvePendingForGame } from "@/lib/betResolve";
+import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
+import { NP_DEMO_MODE_COOKIE, simulatedPlayCount } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
 import { fetchLiveFeed } from "@/lib/mlb";
-import { readStore, writeStore } from "@/lib/store";
+import { normalizeStoreData, readStore, writeStore } from "@/lib/store";
 
 /**
  * POST /api/resolve/auto
@@ -25,6 +27,24 @@ export async function POST(req: Request) {
   const gamePk = Number(body.gamePk);
   if (!Number.isFinite(gamePk)) {
     return NextResponse.json({ error: "gamePk required" }, { status: 400 });
+  }
+
+  const jar = await cookies();
+  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+
+  if (demoMode) {
+    const store = normalizeStoreData(await readStore(session.userId));
+    const pc = simulatedPlayCount(gamePk);
+    const { settled } = await autoResolveDemoPendingForGame(gamePk, store, pc);
+    if (settled.length > 0) {
+      await writeStore(session.userId, store);
+    }
+    return NextResponse.json({
+      ok: true,
+      settledCount: settled.length,
+      settledIds: settled.map((b) => b.id),
+      balance: store.demoBalance ?? 1000,
+    });
   }
 
   const [store, feed] = await Promise.all([

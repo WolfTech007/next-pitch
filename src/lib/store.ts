@@ -69,6 +69,10 @@ export type StoreData = {
   balance: number;
   defaultUnitSize: number;
   bets: StoredBet[];
+  /** Isolated wallet + history when global demo mode is on (persisted). */
+  demoBalance?: number;
+  demoDefaultUnitSize?: number;
+  demoBets?: StoredBet[];
 };
 
 export function defaultStoreData(): StoreData {
@@ -76,7 +80,18 @@ export function defaultStoreData(): StoreData {
     balance: 1000,
     defaultUnitSize: 1,
     bets: [],
+    demoBalance: 1000,
+    demoDefaultUnitSize: 1,
+    demoBets: [],
   };
+}
+
+/** Ensure demo slice exists for older stores. */
+export function normalizeStoreData(s: StoreData): StoreData {
+  if (s.demoBalance == null) s.demoBalance = 1000;
+  if (s.demoBets == null) s.demoBets = [];
+  if (s.demoDefaultUnitSize == null) s.demoDefaultUnitSize = s.defaultUnitSize ?? 1;
+  return s;
 }
 
 function kvStoreKey(userId: string): string {
@@ -99,14 +114,14 @@ export async function readStore(userId: string): Promise<StoreData> {
     try {
       const raw = await getRedis().get<string>(kvStoreKey(userId));
       if (raw) {
-        return JSON.parse(raw) as StoreData;
+        return normalizeStoreData(JSON.parse(raw) as StoreData);
       }
     } catch {
       /* fall through to initial */
     }
     const initial = defaultStoreData();
     await writeStore(userId, initial);
-    return initial;
+    return normalizeStoreData(initial);
   }
   if (isVercelProductionFilesystem()) {
     throw new Error(MISSING_REDIS_MESSAGE);
@@ -115,11 +130,11 @@ export async function readStore(userId: string): Promise<StoreData> {
   const p = userStorePath(userId);
   try {
     const raw = await fs.readFile(p, "utf8");
-    return JSON.parse(raw) as StoreData;
+    return normalizeStoreData(JSON.parse(raw) as StoreData);
   } catch {
     const initial = defaultStoreData();
     await writeStore(userId, initial);
-    return initial;
+    return normalizeStoreData(initial);
   }
 }
 

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { Header } from "@/components/Header";
 import { LiveGameScoreboardCard } from "@/components/LiveGameScoreboardCard";
+import { readDemoModeFromCookies } from "@/lib/demo-mode";
 import {
   type HomeGameCardViewModel,
   loadHomeGameCardsForDate,
@@ -14,7 +16,9 @@ export const dynamic = "force-dynamic";
  */
 export default async function HomePage() {
   try {
-    const date = getEasternDateString();
+    const { enabled: demoMode, date: demoDate } = await readDemoModeFromCookies();
+    const date =
+      demoMode && demoDate && demoDate.length >= 8 ? demoDate : getEasternDateString();
     const cards = await loadHomeGameCardsForDate(date).catch(
       (): HomeGameCardViewModel[] => [],
     );
@@ -23,6 +27,9 @@ export default async function HomePage() {
       <Header />
       <main className="mx-auto max-w-5xl px-4 py-10 lg:px-6">
         <div className="np-card np-card-interactive mb-10 rounded-np-card border border-white/[0.06] p-8 shadow-np-card">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
+            <DemoModeToggle />
+          </div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-np-cyan/90">
             Prototype
           </p>

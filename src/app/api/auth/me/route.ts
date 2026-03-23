@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
-import { readStore } from "@/lib/store";
+import { normalizeStoreData, readStore } from "@/lib/store";
 
 /** Public — returns `user: null` when logged out (for header / home). */
 export async function GET() {
@@ -9,10 +11,13 @@ export async function GET() {
     if (!session) {
       return NextResponse.json({ user: null, balance: null });
     }
-    const store = await readStore(session.userId);
+    const store = normalizeStoreData(await readStore(session.userId));
+    const jar = await cookies();
+    const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+    const balance = demoMode ? store.demoBalance ?? 1000 : store.balance;
     return NextResponse.json({
       user: { id: session.userId, email: session.email },
-      balance: store.balance,
+      balance,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
