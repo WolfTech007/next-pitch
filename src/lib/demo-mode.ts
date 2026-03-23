@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export const NP_DEMO_MODE_COOKIE = "np_demo_mode";
 export const NP_DEMO_DATE_COOKIE = "np_demo_date";
@@ -38,17 +38,49 @@ export function tickFromSimulatedPlayCount(gamePk: number, simulatedPlayCount: n
   return t < 0 ? 0 : t;
 }
 
+export function readDemoModeFromCookieHeader(header: string | null): boolean {
+  if (!header) return false;
+  return header.split(";").some((p) => p.trim().startsWith(`${NP_DEMO_MODE_COOKIE}=1`));
+}
+
+function parseCookieValue(cookieHeader: string | null, name: string): string | null {
+  if (!cookieHeader) return null;
+  for (const part of cookieHeader.split(";")) {
+    const trimmed = part.trim();
+    if (!trimmed.startsWith(`${name}=`)) continue;
+    const v = trimmed.slice(name.length + 1);
+    try {
+      return decodeURIComponent(v);
+    } catch {
+      return v;
+    }
+  }
+  return null;
+}
+
+/**
+ * Reads demo cookies for the request. Merges `cookies()` with the raw `Cookie` header so
+ * cases where the header is present but the cookie jar is incomplete still pick up demo mode.
+ */
 export async function readDemoModeFromCookies(): Promise<{
   enabled: boolean;
   date: string | null;
 }> {
   const jar = await cookies();
-  const enabled = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
-  const date = jar.get(NP_DEMO_DATE_COOKIE)?.value ?? null;
-  return { enabled, date };
-}
+  let enabled = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  let date = jar.get(NP_DEMO_DATE_COOKIE)?.value ?? null;
 
-export function readDemoModeFromCookieHeader(header: string | null): boolean {
-  if (!header) return false;
-  return header.split(";").some((p) => p.trim().startsWith(`${NP_DEMO_MODE_COOKIE}=1`));
+  const raw = (await headers()).get("cookie");
+  if (!enabled) {
+    enabled = readDemoModeFromCookieHeader(raw);
+  }
+  if (!date) {
+    date = parseCookieValue(raw, NP_DEMO_DATE_COOKIE);
+  }
+
+  if (enabled && (!date || date.length < 8)) {
+    date = DEMO_SCHEDULE_DATES[0] ?? null;
+  }
+
+  return { enabled, date };
 }

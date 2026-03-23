@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { Header } from "@/components/Header";
 import { LiveGameScoreboardCard } from "@/components/LiveGameScoreboardCard";
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic";
  * Home lists games with live MLB linescore-style cards (schedule + linescore + boxscore).
  */
 export default async function HomePage() {
+  noStore();
   try {
     const { enabled: demoMode, date: demoDate } = await readDemoModeFromCookies();
     const date =
