@@ -108,6 +108,9 @@ export async function readStore(userId: string): Promise<StoreData> {
     await writeStore(userId, initial);
     return initial;
   }
+  if (isVercelProductionFilesystem()) {
+    throw new Error(MISSING_REDIS_MESSAGE);
+  }
   await ensureUserDataDir();
   const p = userStorePath(userId);
   try {

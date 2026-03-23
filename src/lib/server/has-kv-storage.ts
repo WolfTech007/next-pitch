@@ -10,9 +10,16 @@ export function hasKvStorage(): boolean {
   return kv || upstash;
 }
 
-/** Vercel serverless has a read-only disk — file writes must not run in production without Redis. */
+/**
+ * Vercel / AWS Lambda use a read-only filesystem for the app bundle.
+ * `VERCEL` is usually `"1"` but we accept any value; Lambda sets `AWS_LAMBDA_*`.
+ */
 export function isVercelProductionFilesystem(): boolean {
-  return process.env.VERCEL === "1";
+  return Boolean(
+    process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.AWS_EXECUTION_ENV,
+  );
 }
 
 export const MISSING_REDIS_MESSAGE =
