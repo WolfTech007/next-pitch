@@ -73,6 +73,8 @@ type Props = {
     zonePick?: ZonePick | null;
     location?: LocationBucket;
   }) => void;
+  /** From GameClient when server or client knows demo is on — do not rely on cookies alone. */
+  demoWalletActive?: boolean;
   className?: string;
 };
 
@@ -95,6 +97,7 @@ export function BetPanel({
   onZonePickChange,
   placementLocked,
   onPlaced,
+  demoWalletActive = false,
   className = "",
 }: Props) {
   const [pitchType, setPitchType] = useState<"" | PitchType>("");
@@ -198,7 +201,7 @@ export function BetPanel({
             scoreboardAtBet,
             selections: sel,
             stake: stakeNum,
-            clientDemoMode: isClientDemoMode(),
+            clientDemoMode: demoWalletActive || isClientDemoMode(),
           }),
         });
         const data = await res.json();
@@ -234,6 +237,7 @@ export function BetPanel({
       scoreboardAtBet,
       stakeNum,
       onPlaced,
+      demoWalletActive,
     ],
   );
 

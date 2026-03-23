@@ -286,6 +286,7 @@ export function GameClient({
           <div className="col-span-12 flex min-h-0 xl:col-span-5">
             <BetPanel
               gamePk={gamePk}
+              demoWalletActive={effectiveDemo}
               gameLabel={`${s.away} @ ${s.home}`}
               pitcherName={s.pitcherName}
               batterName={s.batterName}

@@ -8,6 +8,7 @@ import {
   NP_DEMO_MODE_HEADER,
   NP_DEMO_QUERY_PARAM,
   NP_DEMO_QUERY_VALUE,
+  NP_DEMO_SESSION_KEY,
 } from "@/lib/demo-mode-constants";
 
 function escCookieName(name: string): string {
@@ -23,7 +24,14 @@ export function demoModeRequestHeaders(): Record<string, string> {
   const m = document.cookie.match(
     new RegExp(`(?:^|; )${escCookieName(NP_DEMO_MODE_COOKIE)}=([^;]*)`),
   );
-  const enabled = m?.[1] === NP_DEMO_HEADER_ON;
+  let enabled = m?.[1] === NP_DEMO_HEADER_ON;
+  if (!enabled) {
+    try {
+      enabled = sessionStorage.getItem(NP_DEMO_SESSION_KEY) === NP_DEMO_HEADER_ON;
+    } catch {
+      /* ignore */
+    }
+  }
   if (!enabled) return {};
   const out: Record<string, string> = { [NP_DEMO_MODE_HEADER]: NP_DEMO_HEADER_ON };
   const dm = document.cookie.match(
@@ -40,13 +48,30 @@ export function demoModeRequestHeaders(): Record<string, string> {
   return out;
 }
 
-/** True when the browser has demo mode cookies (same check as {@link demoModeRequestHeaders}). */
+/**
+ * True when demo is on: cookie, sessionStorage mirror, or parent passed intent.
+ * sessionStorage is set when the toggle succeeds or when we see the demo cookie once.
+ */
 export function isClientDemoMode(): boolean {
   if (typeof document === "undefined") return false;
   const m = document.cookie.match(
     new RegExp(`(?:^|; )${escCookieName(NP_DEMO_MODE_COOKIE)}=([^;]*)`),
   );
-  return m?.[1] === NP_DEMO_HEADER_ON;
+  const fromCookie = m?.[1] === NP_DEMO_HEADER_ON;
+  if (fromCookie) {
+    try {
+      sessionStorage.setItem(NP_DEMO_SESSION_KEY, NP_DEMO_HEADER_ON);
+    } catch {
+      /* private mode */
+    }
+    return true;
+  }
+  try {
+    if (sessionStorage.getItem(NP_DEMO_SESSION_KEY) === NP_DEMO_HEADER_ON) return true;
+  } catch {
+    /* private mode */
+  }
+  return false;
 }
 
 /**

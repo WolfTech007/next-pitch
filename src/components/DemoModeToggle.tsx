@@ -2,8 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-/** Must match `NP_DEMO_MODE_COOKIE` in `@/lib/demo-mode` (client-safe literal). */
-const NP_DEMO_MODE = "np_demo_mode";
+import {
+  NP_DEMO_HEADER_ON,
+  NP_DEMO_MODE_COOKIE,
+  NP_DEMO_SESSION_KEY,
+} from "@/lib/demo-mode-constants";
 
 /**
  * Home-only control: switches schedule + wallet to demo slice (cookies).
@@ -14,8 +17,16 @@ export function DemoModeToggle() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const m = document.cookie.match(new RegExp(`(?:^|; )${NP_DEMO_MODE}=([^;]*)`));
-    setEnabled(m?.[1] === "1");
+    const m = document.cookie.match(
+      new RegExp(`(?:^|; )${NP_DEMO_MODE_COOKIE}=([^;]*)`),
+    );
+    const on = m?.[1] === NP_DEMO_HEADER_ON;
+    setEnabled(on);
+    try {
+      if (on) sessionStorage.setItem(NP_DEMO_SESSION_KEY, NP_DEMO_HEADER_ON);
+    } catch {
+      /* ignore */
+    }
     setLoading(false);
   }, []);
 
@@ -28,6 +39,12 @@ export function DemoModeToggle() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled: next }),
       });
+      try {
+        if (next) sessionStorage.setItem(NP_DEMO_SESSION_KEY, NP_DEMO_HEADER_ON);
+        else sessionStorage.removeItem(NP_DEMO_SESSION_KEY);
+      } catch {
+        /* ignore */
+      }
       router.refresh();
     },
     [router],

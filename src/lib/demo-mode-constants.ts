@@ -14,3 +14,6 @@ export const NP_DEMO_HEADER_ON = "1";
 /** GET query — cannot be stripped like cookies on some hosts. */
 export const NP_DEMO_QUERY_PARAM = "np_demo";
 export const NP_DEMO_QUERY_VALUE = "1";
+
+/** sessionStorage — mirrors demo intent when cookies are flaky on some hosts. */
+export const NP_DEMO_SESSION_KEY = "np_demo_active";
