@@ -1,0 +1,1136 @@
+{
+  "balance": 1064.401195139243,
+  "defaultUnitSize": 1,
+  "bets": [
+    {
+      "id": "2bd7ca55-f73b-4121-8f52-4689221fd139",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "James Gonzalez",
+      "batterNameAtBet": "Jordan Beck",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.36321600000000004,
+      "offeredOdds": 2.532928064842958,
+      "status": "lost",
+      "createdAt": "2026-03-22T22:22:03.619Z",
+      "playCountAtBet": 66,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Slider\",\"velocity\":\"Under 85\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 3,
+        "inning": 8,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T22:23:38.411Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "Under 85",
+        "location": "In Zone",
+        "speedMph": 78.7
+      },
+      "payout": 0
+    },
+    {
+      "id": "d2d8a2b3-e5b9-4592-9bb2-0b0ceb681c67",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Zach Agnos",
+      "batterNameAtBet": "Joey Meneses",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.231334,
+      "offeredOdds": 4.020161325183501,
+      "status": "won",
+      "createdAt": "2026-03-22T22:20:05.309Z",
+      "playCountAtBet": 65,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 1,
+        "inning": 8,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T22:20:11.725Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone",
+        "speedMph": 86.2
+      },
+      "payout": 4.020161325183501
+    },
+    {
+      "id": "262aa5ac-2763-43f5-8907-632f0fb285d0",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Zach Agnos",
+      "batterNameAtBet": "Joey Meneses",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.231334,
+      "offeredOdds": 4.020161325183501,
+      "status": "won",
+      "createdAt": "2026-03-22T22:19:57.282Z",
+      "playCountAtBet": 65,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"Down\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 1,
+        "inning": 8,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T22:20:01.795Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone",
+        "speedMph": 86.2
+      },
+      "payout": 4.020161325183501
+    },
+    {
+      "id": "d98269f9-8855-450c-b0b1-cd684606975c",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Zach Agnos",
+      "batterNameAtBet": "Darell Hernaiz",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.231334,
+      "offeredOdds": 4.020161325183501,
+      "status": "won",
+      "createdAt": "2026-03-22T22:18:22.265Z",
+      "playCountAtBet": 63,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 2,
+        "strikes": 1,
+        "outs": 0,
+        "inning": 8,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T22:18:50.506Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone",
+        "speedMph": 86.1
+      },
+      "payout": 4.020161325183501
+    },
+    {
+      "id": "b462614a-c40a-4513-95b9-2bad3644e789",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Zach Agnos",
+      "batterNameAtBet": "Austin Wynns",
+      "selections": {
+        "pitchType": "Slider",
+        "location": "Inside"
+      },
+      "stake": 1,
+      "probability": 0.007864500000000002,
+      "offeredOdds": 118.25290864009153,
+      "status": "lost",
+      "createdAt": "2026-03-22T22:17:13.765Z",
+      "playCountAtBet": 62,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 0,
+        "inning": 8,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T22:17:27.173Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "Under 85",
+        "location": "Down",
+        "speedMph": 77.8
+      },
+      "payout": 0
+    },
+    {
+      "id": "93cd3cd8-dd23-484d-a7c8-cf9b89d4aca4",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Jaden Hill",
+      "batterNameAtBet": "Austin Wynns",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.46,
+      "offeredOdds": 2.0217391304347827,
+      "status": "lost",
+      "createdAt": "2026-03-22T22:15:10.793Z",
+      "playCountAtBet": 61,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Slider\",\"velocity\":\"Under 85\",\"location\":\"Ball\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 0,
+        "outs": 3,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T22:16:37.658Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "Under 85",
+        "location": "Ball",
+        "speedMph": 70.9
+      },
+      "payout": 0
+    },
+    {
+      "id": "4f2c55ea-cfc4-478f-80d7-2de7833cf589",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "James Gonzalez",
+      "batterNameAtBet": "Jordan Beck",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "90-94",
+        "location": "Ball"
+      },
+      "stake": 1,
+      "probability": 0.07362576000000001,
+      "offeredOdds": 12.631448558222013,
+      "status": "lost",
+      "createdAt": "2026-03-22T22:13:57.050Z",
+      "playCountAtBet": 61,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 2,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T22:14:44.439Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "Under 85",
+        "location": "Ball",
+        "speedMph": 70.9
+      },
+      "payout": 0
+    },
+    {
+      "id": "84ffbd28-6455-4941-ab5f-501d4d88dba8",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "J.T. Ginn",
+      "batterNameAtBet": "Tevin Tucker",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.46,
+      "offeredOdds": 2.0217391304347827,
+      "status": "won",
+      "createdAt": "2026-03-22T22:11:51.987Z",
+      "playCountAtBet": 60,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"Ball\"}",
+      "scoreboardAtBet": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T22:12:00.382Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone",
+        "speedMph": 86.1
+      },
+      "payout": 2.0217391304347827
+    },
+    {
+      "id": "21ce6ff8-b915-45bb-9d2d-0a512e78d611",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "J.T. Ginn",
+      "batterNameAtBet": "Tevin Tucker",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "Down"
+      },
+      "stake": 1,
+      "probability": 0.004614720000000001,
+      "offeredOdds": 201.5290201789057,
+      "status": "lost",
+      "createdAt": "2026-03-22T22:11:32.566Z",
+      "playCountAtBet": 60,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Slider\",\"velocity\":\"Under 85\",\"location\":\"Ball\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T22:11:40.131Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "Ball",
+        "speedMph": 85.7
+      },
+      "payout": 0
+    },
+    {
+      "id": "15bf26ad-64e6-480c-a301-64e8a66ae8be",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "J.T. Ginn",
+      "batterNameAtBet": "Edouard Julien",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.189,
+      "offeredOdds": 4.761904761904762,
+      "status": "lost",
+      "createdAt": "2026-03-22T21:59:40.843Z",
+      "playCountAtBet": 54,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"90-94\",\"location\":\"Up\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 0,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T22:00:13.929Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "Ball",
+        "speedMph": 85
+      },
+      "payout": 0
+    },
+    {
+      "id": "da6d667c-d1f3-48d9-acb9-f421269d0e46",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Jaden Hill",
+      "batterNameAtBet": "Max Muncy",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "Inside"
+      },
+      "stake": 1,
+      "probability": 0.0168,
+      "offeredOdds": 53.57142857142858,
+      "status": "lost",
+      "createdAt": "2026-03-22T21:52:00.581Z",
+      "playCountAtBet": 50,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"90-94\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0,
+        "inning": 7,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T21:52:02.853Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "90-94",
+        "location": "Ball",
+        "speedMph": 90.3
+      },
+      "payout": 0
+    },
+    {
+      "id": "e837c880-bd9d-42b2-84c1-e55ac9ed83e4",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Jaden Hill",
+      "batterNameAtBet": "Max Muncy",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "Ball"
+      },
+      "stake": 1,
+      "probability": 0.147,
+      "offeredOdds": 6.122448979591837,
+      "status": "won",
+      "createdAt": "2026-03-22T21:51:57.573Z",
+      "playCountAtBet": 50,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"90-94\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0,
+        "inning": 7,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T21:52:02.853Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "90-94",
+        "location": "Ball",
+        "speedMph": 90.3
+      },
+      "payout": 6.122448979591837
+    },
+    {
+      "id": "16fa6c2a-4d16-42d0-951d-0dc3c8a28e42",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "Jaden Hill",
+      "batterNameAtBet": "Max Muncy",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "Ball"
+      },
+      "stake": 1,
+      "probability": 0.147,
+      "offeredOdds": 6.122448979591837,
+      "status": "won",
+      "createdAt": "2026-03-22T21:51:50.746Z",
+      "playCountAtBet": 50,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"90-94\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0,
+        "inning": 7,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T21:52:02.853Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "90-94",
+        "location": "Ball",
+        "speedMph": 90.3
+      },
+      "payout": 6.122448979591837
+    },
+    {
+      "id": "2dfb2766-79b6-4039-be11-7d126d70ec96",
+      "gamePk": 831945,
+      "gameLabel": "Athletics @ Rockies",
+      "pitcherNameAtBet": "John Brebbia",
+      "batterNameAtBet": "Max Muncy",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.03402,
+      "offeredOdds": 26.455026455026452,
+      "status": "won",
+      "createdAt": "2026-03-22T21:50:07.922Z",
+      "playCountAtBet": 49,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 3,
+        "inning": 6,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T21:51:32.740Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone",
+        "speedMph": 86.3
+      },
+      "payout": 26.455026455026452
+    },
+    {
+      "id": "22f0d17a-76f6-4059-a138-5d3b2ffe3c86",
+      "gamePk": 831896,
+      "gameLabel": "Reds @ Guardians",
+      "pitcherNameAtBet": "Kolby Allard",
+      "batterNameAtBet": "Kien Vu",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "Up"
+      },
+      "stake": 1,
+      "probability": 0.025199999999999997,
+      "offeredOdds": 35.71428571428572,
+      "status": "won",
+      "createdAt": "2026-03-22T21:46:16.007Z",
+      "playCountAtBet": 79,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"Under 85\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 2,
+        "inning": 9,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T21:46:39.894Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "Under 85",
+        "location": "Up",
+        "speedMph": 83.7
+      },
+      "payout": 35.71428571428572
+    },
+    {
+      "id": "238137f3-76db-48e8-8730-41d399a265a2",
+      "gamePk": 831896,
+      "gameLabel": "Reds @ Guardians",
+      "pitcherNameAtBet": "Connor Brogdon",
+      "batterNameAtBet": "Will Banfield",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.189,
+      "offeredOdds": 4.761904761904762,
+      "status": "won",
+      "createdAt": "2026-03-22T21:28:36.156Z",
+      "playCountAtBet": 70,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Changeup\",\"velocity\":\"Under 85\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 1,
+        "inning": 8,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T21:29:06.697Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone",
+        "speedMph": 85.4
+      },
+      "payout": 4.761904761904762
+    },
+    {
+      "id": "b2d5eb94-d8d3-4c5b-b39a-09ac698df710",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Tanner Gillis",
+      "batterNameAtBet": "Hayden Cantrelle",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T21:03:29.880Z",
+      "playCountAtBet": 57,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"Down\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T21:03:48.539Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "Under 85",
+        "location": "In Zone",
+        "speedMph": 84
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "bc444278-e2e9-4347-b005-4d7cff4cfc90",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Tanner Gillis",
+      "batterNameAtBet": "Scott Kingery",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "lost",
+      "createdAt": "2026-03-22T21:02:36.499Z",
+      "playCountAtBet": 56,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"Under 85\",\"location\":\"Up\"}",
+      "scoreboardAtBet": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0,
+        "inning": 7,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T21:02:38.344Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "Under 85",
+        "location": "Down",
+        "speedMph": 77.7
+      },
+      "payout": 0
+    },
+    {
+      "id": "461729f3-4e3f-413e-8e1c-cd470683ee41",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Ben Brown",
+      "batterNameAtBet": "Dasan Brown",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "95-97"
+      },
+      "stake": 1,
+      "probability": 0.11760000000000001,
+      "offeredOdds": 7.653061224489796,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:58:16.554Z",
+      "playCountAtBet": 55,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"Ball\"}",
+      "scoreboardAtBet": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1,
+        "inning": 7,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:58:29.024Z",
+      "outcome": {
+        "pitchType": "Curveball",
+        "velocity": "Under 85",
+        "location": "In Zone"
+      },
+      "payout": 0
+    },
+    {
+      "id": "cb2da894-b986-4ac3-8c75-4e3c8eee21a3",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Ben Brown",
+      "batterNameAtBet": "Dasan Brown",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "95-97"
+      },
+      "stake": 1,
+      "probability": 0.11760000000000001,
+      "offeredOdds": 7.653061224489796,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:57:59.647Z",
+      "playCountAtBet": 55,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Curveball\",\"velocity\":\"Under 85\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1,
+        "inning": 7,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:58:09.035Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "Ball"
+      },
+      "payout": 0
+    },
+    {
+      "id": "36909954-6f6b-464f-864f-abf15f2a156e",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Ben Brown",
+      "batterNameAtBet": "Dasan Brown",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "95-97"
+      },
+      "stake": 1,
+      "probability": 0.11760000000000001,
+      "offeredOdds": 7.653061224489796,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:56:39.178Z",
+      "playCountAtBet": 55,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Curveball\",\"velocity\":\"Under 85\",\"location\":\"Down\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 1,
+        "inning": 7,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:57:08.961Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "payout": 0
+    },
+    {
+      "id": "bdce0290-136b-4d16-8554-0d883de0dc96",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Peter Strzelecki",
+      "batterNameAtBet": "Drew Bowser",
+      "selections": {
+        "velocity": "85-89"
+      },
+      "stake": 1,
+      "probability": 0.18,
+      "offeredOdds": 5,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:51:02.555Z",
+      "playCountAtBet": 52,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"Under 85\",\"location\":\"Down\"}",
+      "scoreboardAtBet": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 2,
+        "inning": 6,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T20:51:22.340Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "Under 85",
+        "location": "Down"
+      },
+      "payout": 0
+    },
+    {
+      "id": "51fc5432-e21f-47ff-ade0-79dc123ba7d6",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Peter Strzelecki",
+      "batterNameAtBet": "Kevin Alcántara",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:50:01.275Z",
+      "playCountAtBet": 51,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"Under 85\",\"location\":\"Down\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1,
+        "inning": 6,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T20:50:12.354Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "Under 85",
+        "location": "In Zone"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "3f3f2ad0-1bc8-4fd0-ac50-d4c2d6121243",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Peter Strzelecki",
+      "batterNameAtBet": "Kevin Alcántara",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:49:37.574Z",
+      "playCountAtBet": 51,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"Under 85\",\"location\":\"Ball\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 0,
+        "outs": 1,
+        "inning": 6,
+        "inningHalf": "bottom"
+      },
+      "resolvedAt": "2026-03-22T20:49:52.361Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "Under 85",
+        "location": "Down"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "02d0e7b9-781f-4654-8990-241bc9cc51c6",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Peter Strzelecki",
+      "batterNameAtBet": "Brian Kalmer",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:46:19.786Z",
+      "playCountAtBet": 49,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 3,
+        "inning": 6,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:48:08.930Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "088ea427-1617-4812-b1ef-5db71d2cd35b",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Cade Horton",
+      "batterNameAtBet": "Marco Dinges",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:46:13.948Z",
+      "playCountAtBet": 49,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 2,
+        "inning": 6,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:46:16.435Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "9ecddc8b-be10-4a4e-90f1-3bb7e059630f",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Cade Horton",
+      "batterNameAtBet": "Marco Dinges",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:45:59.386Z",
+      "playCountAtBet": 49,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"Under 85\",\"location\":\"In Zone\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 2,
+        "inning": 6,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:46:06.444Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "9a9c25e2-96da-4ac6-a45d-21bd0a1cbbee",
+      "gamePk": 831789,
+      "gameLabel": "Brewers @ Cubs",
+      "pitcherNameAtBet": "Cade Horton",
+      "batterNameAtBet": "Marco Dinges",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:45:55.234Z",
+      "playCountAtBet": 49,
+      "pitchSignatureAtBet": "{\"pitchType\":\"Fastball\",\"velocity\":\"85-89\",\"location\":\"Ball\"}",
+      "scoreboardAtBet": {
+        "balls": 1,
+        "strikes": 0,
+        "outs": 2,
+        "inning": 6,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:45:56.448Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "Under 85",
+        "location": "In Zone"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "05dc964d-6aab-494a-8b4d-42778b9de005",
+      "gamePk": 831789,
+      "gameLabel": "Milwaukee Brewers @ Chicago Cubs",
+      "pitcherNameAtBet": "Cade Horton",
+      "batterNameAtBet": "Luis Castillo",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "won",
+      "createdAt": "2026-03-22T20:40:02.607Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "scoreboardAtBet": {
+        "balls": 2,
+        "strikes": 3,
+        "outs": 3,
+        "inning": 5,
+        "inningHalf": "top"
+      },
+      "resolvedAt": "2026-03-22T20:40:04.262Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "98+",
+        "location": "Up"
+      },
+      "payout": 2.142857142857143
+    },
+    {
+      "id": "400614d5-e3a1-42f1-bf2f-0a2db606fc24",
+      "gamePk": 831789,
+      "gameLabel": "Milwaukee Brewers @ Chicago Cubs",
+      "pitcherNameAtBet": "Peter Strzelecki",
+      "batterNameAtBet": "Dansby Swanson",
+      "selections": {
+        "pitchType": "Fastball",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.189,
+      "offeredOdds": 4.761904761904762,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:35:53.166Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:39:48.289Z",
+      "outcome": {
+        "pitchType": "Fastball",
+        "velocity": "98+",
+        "location": "Outside"
+      },
+      "payout": 0
+    },
+    {
+      "id": "91cd5bad-7edb-4942-aa1b-5f859582d2fa",
+      "gamePk": 831503,
+      "gameLabel": "Washington Nationals @ Baltimore Orioles",
+      "pitcherNameAtBet": "Ryan Helsley",
+      "batterNameAtBet": "Christian Franklin",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:34:29.097Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:35:25.868Z",
+      "outcome": {
+        "pitchType": "Changeup",
+        "velocity": "95-97",
+        "location": "Down"
+      },
+      "payout": 0
+    },
+    {
+      "id": "badc84c3-421a-43de-92ff-45a209177a34",
+      "gamePk": 831503,
+      "gameLabel": "Washington Nationals @ Baltimore Orioles",
+      "pitcherNameAtBet": "Ryan Helsley",
+      "batterNameAtBet": "Nasim Nuñez",
+      "selections": {
+        "pitchType": "Fastball"
+      },
+      "stake": 1,
+      "probability": 0.42,
+      "offeredOdds": 2.142857142857143,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:30:02.227Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:35:27.289Z",
+      "outcome": {
+        "pitchType": "Slider",
+        "velocity": "85-89",
+        "location": "Up"
+      },
+      "payout": 0
+    },
+    {
+      "id": "8b43da9c-ee7e-4a2b-b1a8-2c822dd085de",
+      "gamePk": 831789,
+      "gameLabel": "Milwaukee Brewers @ Chicago Cubs",
+      "pitcherNameAtBet": "Chad Patrick",
+      "batterNameAtBet": "Nico Hoerner",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "stake": 1,
+      "probability": 0.03402,
+      "offeredOdds": 26.455026455026452,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:28:49.786Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:29:53.727Z",
+      "outcome": {
+        "pitchType": "Curveball",
+        "velocity": "85-89",
+        "location": "Down"
+      },
+      "payout": 0
+    },
+    {
+      "id": "780855ba-3ec5-42fc-93cb-a9392c0e6feb",
+      "gamePk": 831896,
+      "gameLabel": "Away @ Home",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "90-94"
+      },
+      "stake": 1,
+      "probability": 0.1596,
+      "offeredOdds": 5.639097744360902,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:18:48.130Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:29:54.610Z",
+      "outcome": {
+        "pitchType": "Changeup",
+        "velocity": "Under 85",
+        "location": "Ball"
+      },
+      "payout": 0
+    },
+    {
+      "id": "f9ab2b96-1d28-424b-a3fd-271cac506467",
+      "gamePk": 831503,
+      "gameLabel": "Away @ Home",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "85-89"
+      },
+      "stake": 1,
+      "probability": 0.0756,
+      "offeredOdds": 11.904761904761905,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:17:27.253Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:29:55.335Z",
+      "outcome": {
+        "pitchType": "Curveball",
+        "velocity": "Under 85",
+        "location": "Outside"
+      },
+      "payout": 0
+    },
+    {
+      "id": "f653bc5d-613e-4f80-949b-91039ce85f17",
+      "gamePk": 999999,
+      "gameLabel": "Demo Away @ Demo Home",
+      "selections": {
+        "pitchType": "Slider",
+        "velocity": "90-94",
+        "location": "Inside"
+      },
+      "stake": 1,
+      "probability": 0.003344,
+      "offeredOdds": 269.1387559808612,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:10:44.994Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:10:46.578Z",
+      "outcome": {
+        "pitchType": "Changeup",
+        "velocity": "98+",
+        "location": "Down"
+      },
+      "payout": 0
+    },
+    {
+      "id": "a6b84299-cc6f-42b5-841f-375698fc4035",
+      "gamePk": 999999,
+      "gameLabel": "Demo Away @ Demo Home",
+      "selections": {
+        "pitchType": "Fastball",
+        "velocity": "85-89",
+        "location": "In Zone"
+      },
+      "stake": 10,
+      "probability": 0.03402,
+      "offeredOdds": 26.455026455026452,
+      "status": "lost",
+      "createdAt": "2026-03-22T20:09:49.829Z",
+      "playCountAtBet": 0,
+      "pitchSignatureAtBet": null,
+      "resolvedAt": "2026-03-22T20:09:57.755Z",
+      "outcome": {
+        "pitchType": "Other",
+        "velocity": "Under 85",
+        "location": "Up"
+      },
+      "payout": 0
+    }
+  ]
+}

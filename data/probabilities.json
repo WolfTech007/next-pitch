@@ -1,0 +1,42 @@
+{
+  "_comment": "League-style priors for implied probability → fair decimal odds (1/p). House spread is applied in odds.ts (OFFERED_VS_FAIR). battingResult: ~league rates per pitch (ball/strike/foul common; Hit = fair ball that becomes a hit, relatively rare).",
+  "pitchType": {
+    "Fastball": 0.46,
+    "Slider": 0.21,
+    "Curveball": 0.11,
+    "Changeup": 0.13,
+    "Other": 0.09
+  },
+  "velocity": {
+    "Under 85": 0.04,
+    "85-89": 0.16,
+    "90-94": 0.39,
+    "95-97": 0.29,
+    "98+": 0.12
+  },
+  "location": {
+    "In Zone": 0.47,
+    "Ball": 0.36,
+    "Up": 0.055,
+    "Down": 0.055,
+    "Inside": 0.035,
+    "Outside": 0.035
+  },
+  "zoneCells": {
+    "1": 0.044,
+    "2": 0.058,
+    "3": 0.044,
+    "4": 0.052,
+    "5": 0.078,
+    "6": 0.052,
+    "7": 0.042,
+    "8": 0.056,
+    "9": 0.042
+  },
+  "battingResult": {
+    "Hit": 0.085,
+    "Ball": 0.36,
+    "Strike": 0.285,
+    "Foul": 0.27
+  }
+}
