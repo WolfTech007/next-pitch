@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { randomUUID } from "crypto";
-import { demoPlayCountFromPitchIndex, NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, readDemoModeFromCookies } from "@/lib/demo-mode";
 import {
   getDemoReplayState,
   scheduleDemoAdvanceAfterBet,
@@ -119,8 +118,7 @@ export async function POST(req: Request) {
   }
 
   const store = normalizeStoreData(await readStore(session.userId));
-  const jar = await cookies();
-  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  const { enabled: demoMode } = await readDemoModeFromCookies();
 
   const liveBal = store.balance;
   const demoBal = store.demoBalance ?? 1000;

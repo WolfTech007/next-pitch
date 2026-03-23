@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import { readDemoModeFromCookies } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
 import { normalizeStoreData, readStore } from "@/lib/store";
 
@@ -12,8 +11,7 @@ export async function GET() {
       return NextResponse.json({ user: null, balance: null });
     }
     const store = normalizeStoreData(await readStore(session.userId));
-    const jar = await cookies();
-    const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+    const { enabled: demoMode } = await readDemoModeFromCookies();
     const balance = demoMode ? store.demoBalance ?? 1000 : store.balance;
     return NextResponse.json({
       user: { id: session.userId, email: session.email },

@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import { readDemoModeFromCookies } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
 import { normalizeStoreData, readStore } from "@/lib/store";
 
@@ -14,8 +13,7 @@ export async function GET() {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
   const store = normalizeStoreData(await readStore(session.userId));
-  const jar = await cookies();
-  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  const { enabled: demoMode } = await readDemoModeFromCookies();
   if (demoMode) {
     return NextResponse.json({
       balance: store.demoBalance ?? 1000,

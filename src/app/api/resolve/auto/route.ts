@@ -1,7 +1,6 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
-import { demoPlayCountFromPitchIndex, NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, readDemoModeFromCookies } from "@/lib/demo-mode";
 import {
   applyDemoReplayAdvanceIfDue,
   getDemoReplayState,
@@ -34,8 +33,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "gamePk required" }, { status: 400 });
   }
 
-  const jar = await cookies();
-  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  const { enabled: demoMode } = await readDemoModeFromCookies();
 
   if (demoMode) {
     const store = normalizeStoreData(await readStore(session.userId));

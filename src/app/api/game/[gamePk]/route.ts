@@ -1,8 +1,6 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
-import { demoPlayCountFromPitchIndex } from "@/lib/demo-mode";
-import { NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, readDemoModeFromCookies } from "@/lib/demo-mode";
 import {
   applyDemoReplayAdvanceIfDue,
   getDemoReplayState,
@@ -106,8 +104,7 @@ export async function GET(_req: Request, segment: Params) {
     });
   }
 
-  const jar = await cookies();
-  const demoMode = jar.get(NP_DEMO_MODE_COOKIE)?.value === "1";
+  const { enabled: demoMode } = await readDemoModeFromCookies();
   if (demoMode) {
     const session = await getSession();
     let pitchIndex = 0;
