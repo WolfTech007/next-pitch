@@ -1,4 +1,6 @@
 import { potentialPayout } from "@/lib/odds";
+import { tickFromSimulatedPlayCount } from "@/lib/demo-mode";
+import { loadDemoTimeline } from "@/lib/demo-timeline";
 import {
   DEMO_GAME_PK,
   extractScoreboardFromFeed,
@@ -111,10 +113,15 @@ export async function tryResolveBetDemoSim(
   if (bet.status !== "pending") {
     return { ok: false, code: "no_new_pitch" };
   }
-  if (currentPlayCount <= (bet.playCountAtBet ?? 0)) {
+
+  const timeline = await loadDemoTimeline(bet.gamePk);
+  const tickBet = tickFromSimulatedPlayCount(bet.gamePk, bet.playCountAtBet ?? 0);
+  const tickCur = tickFromSimulatedPlayCount(bet.gamePk, currentPlayCount);
+  if (tickCur <= tickBet) {
     return { ok: false, code: "no_new_pitch" };
   }
-  const outcome = randomDemoPitch();
+  const idx = Math.min(tickCur, Math.max(0, timeline.length - 1));
+  const outcome = timeline[idx]?.outcome ?? randomDemoPitch();
   const won = slipWins(bet.selections, outcome);
   const gross = potentialPayout(bet.stake, bet.offeredOdds);
   const payout = won ? gross : 0;

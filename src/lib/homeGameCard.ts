@@ -51,6 +51,8 @@ export type HomeGameCardViewModel = {
     detail: string;
     personId: number | null;
   };
+  /** Demo home: hide internal game id in footer so it feels like a normal broadcast. */
+  hideGamePkFooter?: boolean;
 };
 
 function fmtRecord(r: { wins: number; losses: number } | null): string {
@@ -163,11 +165,14 @@ function composeHomeGameCard(
   const errHome = Number(homeLs?.errors ?? 0);
 
   const isPreview = meta.abstractGameState === "Preview";
+  const isFinal = meta.abstractGameState === "Final";
   const inningLabel = isPreview
     ? "Pre-game"
-    : L
-      ? inningLabelFromLinescore(L)
-      : "—";
+    : isFinal
+      ? "Final"
+      : L
+        ? inningLabelFromLinescore(L)
+        : "—";
 
   const offense = L?.offense as Record<string, unknown> | undefined;
   const defense = L?.defense as Record<string, unknown> | undefined;
@@ -268,9 +273,10 @@ function composeHomeGameCard(
 
 export async function loadHomeGameCardsForDate(
   dateStr: string,
+  options?: { includeCompleted?: boolean },
 ): Promise<HomeGameCardViewModel[]> {
   const [scheduleMetas, abbrevMap] = await Promise.all([
-    fetchScheduleGameMetaForDate(dateStr),
+    fetchScheduleGameMetaForDate(dateStr, options),
     fetchTeamIdToAbbrev(),
   ]);
 

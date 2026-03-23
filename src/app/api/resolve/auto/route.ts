@@ -1,7 +1,12 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
-import { NP_DEMO_MODE_COOKIE, simulatedPlayCount } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import {
+  applyDemoReplayAdvanceIfDue,
+  getDemoReplayState,
+} from "@/lib/demo-replay-state";
+import { loadDemoFeedAndTimeline } from "@/lib/demo-timeline";
 import { getSession } from "@/lib/auth/session";
 import { fetchLiveFeed } from "@/lib/mlb";
 import { normalizeStoreData, readStore, writeStore } from "@/lib/store";
@@ -34,9 +39,13 @@ export async function POST(req: Request) {
 
   if (demoMode) {
     const store = normalizeStoreData(await readStore(session.userId));
-    const pc = simulatedPlayCount(gamePk);
-    const { settled } = await autoResolveDemoPendingForGame(gamePk, store, pc);
-    if (settled.length > 0) {
+    const { timeline } = await loadDemoFeedAndTimeline(gamePk);
+    const maxIdx = Math.max(0, timeline.length - 1);
+    const adv = applyDemoReplayAdvanceIfDue(store, gamePk, maxIdx);
+    const pitchIndex = getDemoReplayState(store, gamePk).pitchIndex;
+    const playCount = demoPlayCountFromPitchIndex(gamePk, pitchIndex);
+    const { settled } = await autoResolveDemoPendingForGame(gamePk, store, playCount);
+    if (adv.changed || settled.length > 0) {
       await writeStore(session.userId, store);
     }
     return NextResponse.json({

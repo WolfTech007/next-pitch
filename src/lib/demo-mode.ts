@@ -25,12 +25,17 @@ export function pickRandomDemoDate(): string {
 }
 
 /**
- * Monotonic “play count” for demo sim — advances every few seconds so auto-resolve
- * can detect a “new pitch” vs the value stored on the slip.
+ * Demo “play count” anchor from the current replay pitch index (matches live slip encoding shape).
  */
-export function simulatedPlayCount(gamePk: number): number {
-  const tickWindowMs = 2800;
-  return Math.floor(Date.now() / tickWindowMs) * 9973 + gamePk * 17;
+export function demoPlayCountFromPitchIndex(gamePk: number, pitchIndex: number): number {
+  return pitchIndex * 9973 + gamePk * 17;
+}
+
+/** Inverse of {@link demoPlayCountFromPitchIndex} — pitch index from stored playCountAtBet. */
+export function tickFromSimulatedPlayCount(gamePk: number, simulatedPlayCount: number): number {
+  const base = gamePk * 17;
+  const t = Math.floor((simulatedPlayCount - base) / 9973);
+  return t < 0 ? 0 : t;
 }
 
 export async function readDemoModeFromCookies(): Promise<{

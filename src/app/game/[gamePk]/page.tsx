@@ -1,3 +1,4 @@
+import { readDemoModeFromCookies } from "@/lib/demo-mode";
 import { GameClient } from "./GameClient";
 
 type PageProps = { params: Promise<{ gamePk: string }> };
@@ -8,6 +9,7 @@ type PageProps = { params: Promise<{ gamePk: string }> };
 export default async function GamePage(props: PageProps) {
   const { gamePk: raw } = await props.params;
   const gamePk = Number(raw);
+  const { enabled: demoMode } = await readDemoModeFromCookies();
 
-  return <GameClient gamePk={gamePk} />;
+  return <GameClient gamePk={gamePk} demoMode={demoMode} />;
 }

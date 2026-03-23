@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { tryResolveBet, tryResolveBetDemoSim } from "@/lib/betResolve";
-import { simulatedPlayCount } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex } from "@/lib/demo-mode";
+import { getDemoReplayState } from "@/lib/demo-replay-state";
 import { getSession } from "@/lib/auth/session";
 import { normalizeStoreData, readStore, writeStore } from "@/lib/store";
 
@@ -51,9 +52,16 @@ export async function POST(req: Request) {
     });
   }
 
+  const demoCurrentPlayCount =
+    wallet === "demo"
+      ? demoPlayCountFromPitchIndex(
+          bet.gamePk,
+          getDemoReplayState(store, bet.gamePk).pitchIndex,
+        )
+      : 0;
   const result =
     wallet === "demo" && !forceDemo
-      ? await tryResolveBetDemoSim(bet, store, simulatedPlayCount(bet.gamePk))
+      ? await tryResolveBetDemoSim(bet, store, demoCurrentPlayCount)
       : await tryResolveBet(bet, store, forceDemo, { wallet });
 
   if (!result.ok) {

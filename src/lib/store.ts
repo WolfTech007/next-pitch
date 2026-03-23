@@ -73,6 +73,8 @@ export type StoreData = {
   demoBalance?: number;
   demoDefaultUnitSize?: number;
   demoBets?: StoredBet[];
+  /** Demo mode: per-game replay index + delayed advance after bets (see `demo-replay-state`). */
+  demoReplayByGamePk?: Record<string, { pitchIndex: number; advanceAtMs: number | null }>;
 };
 
 export function defaultStoreData(): StoreData {

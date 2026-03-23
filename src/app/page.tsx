@@ -3,6 +3,8 @@ import { DemoModeToggle } from "@/components/DemoModeToggle";
 import { Header } from "@/components/Header";
 import { LiveGameScoreboardCard } from "@/components/LiveGameScoreboardCard";
 import { readDemoModeFromCookies } from "@/lib/demo-mode";
+import { buildDemoFallbackHomeCards } from "@/lib/demo-fallback-home-cards";
+import { decorateDemoHomeCards } from "@/lib/demo-home-presentation";
 import {
   type HomeGameCardViewModel,
   loadHomeGameCardsForDate,
@@ -19,9 +21,15 @@ export default async function HomePage() {
     const { enabled: demoMode, date: demoDate } = await readDemoModeFromCookies();
     const date =
       demoMode && demoDate && demoDate.length >= 8 ? demoDate : getEasternDateString();
-    const cards = await loadHomeGameCardsForDate(date).catch(
-      (): HomeGameCardViewModel[] => [],
-    );
+    let cards = await loadHomeGameCardsForDate(date, {
+      includeCompleted: demoMode,
+    }).catch((): HomeGameCardViewModel[] => []);
+    if (demoMode && cards.length === 0) {
+      cards = buildDemoFallbackHomeCards();
+    }
+    if (demoMode && cards.length > 0) {
+      cards = decorateDemoHomeCards(cards);
+    }
     return (
     <>
       <Header />

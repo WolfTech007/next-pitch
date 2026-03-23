@@ -177,9 +177,15 @@ export function LiveGameScoreboardCard({ card }: { card: HomeGameCardViewModel }
         />
       </div>
 
-      <p className="px-4 py-2 text-[10px] text-white/40 group-hover:text-white/55">
-        Open game · #{card.gamePk}
-      </p>
+      {card.hideGamePkFooter ? (
+        <p className="px-4 py-2 text-[10px] text-white/40 group-hover:text-white/55">
+          Open game
+        </p>
+      ) : (
+        <p className="px-4 py-2 text-[10px] text-white/40 group-hover:text-white/55">
+          Open game · #{card.gamePk}
+        </p>
+      )}
     </Link>
   );
 }

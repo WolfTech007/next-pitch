@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { formatZonePickLabel } from "@/lib/markets";
 import type { StoredBet } from "@/lib/store";
 
 /**
- * Recent slips + buttons to resolve pending bets (live or demo).
+ * Recent slips; each row links to `/game/[gamePk]` (live + demo). Pending slips settle from the feed.
  */
 export function BetHistory({
   refreshKey,
@@ -19,8 +20,6 @@ export function BetHistory({
     balance: number;
     bets: StoredBet[];
   } | null>(null);
-  const [resolvingId, setResolvingId] = useState<string | null>(null);
-  const [resolveError, setResolveError] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     const res = await fetch("/api/bets");
@@ -50,54 +49,6 @@ export function BetHistory({
     return () => clearInterval(id);
   }, [pendingCount, load]);
 
-  async function resolve(id: string, forceDemo: boolean) {
-    setResolvingId(id);
-    setResolveError((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    try {
-      const res = await fetch("/api/resolve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ betId: id, forceDemo }),
-      });
-      let j: { message?: string; error?: string; ok?: boolean };
-      try {
-        j = (await res.json()) as typeof j;
-      } catch {
-        setResolveError((prev) => ({
-          ...prev,
-          [id]: "Could not read server response. Is the dev server running?",
-        }));
-        return;
-      }
-      if (!res.ok) {
-        setResolveError((prev) => ({
-          ...prev,
-          [id]:
-            j.message ??
-            j.error ??
-            (res.status === 502
-              ? "MLB live feed unavailable — try Demo resolve."
-              : res.status === 409
-                ? "The app doesn’t see a new pitch yet vs when you bet (same count & same pitch buckets). Wait for the next pitch or use Demo resolve."
-                : `Could not resolve (${res.status}).`),
-        }));
-        return;
-      }
-      await load();
-    } catch {
-      setResolveError((prev) => ({
-        ...prev,
-        [id]: "Network error — check your connection and try again.",
-      }));
-    } finally {
-      setResolvingId(null);
-    }
-  }
-
   if (!data) {
     return (
       <div
@@ -114,114 +65,90 @@ export function BetHistory({
 
   const list = (
     <ul className="space-y-3">
-        {bets.map((b) => (
-          <li
-            key={b.id}
-            className="rounded-np-control border border-white/[0.06] bg-np-panel/50 p-3 text-sm backdrop-blur-sm"
+      {bets.map((b) => (
+        <li key={b.id}>
+          <Link
+            href={`/game/${b.gamePk}`}
+            className="block rounded-np-control border border-white/[0.06] bg-np-panel/50 p-3 text-sm backdrop-blur-sm transition hover:border-np-blue/30 hover:bg-white/[0.04]"
           >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-medium text-np-text">{b.gameLabel}</span>
-              <span
-                className={
-                  b.status === "pending"
-                    ? "text-accent-amber"
-                    : b.status === "won"
-                      ? "text-accent-green"
-                      : "text-accent-red"
-                }
-              >
-                {b.status.toUpperCase()}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-medium text-np-text">{b.gameLabel}</span>
+            <span
+              className={
+                b.status === "pending"
+                  ? "text-accent-amber"
+                  : b.status === "won"
+                    ? "text-accent-green"
+                    : "text-accent-red"
+              }
+            >
+              {b.status.toUpperCase()}
+            </span>
+          </div>
+          {b.scoreboardAtBet ? (
+            <p className="mt-1 text-[10px] leading-relaxed text-white/45">
+              Count:{" "}
+              <span className="text-white/65">
+                {b.scoreboardAtBet.balls}-{b.scoreboardAtBet.strikes} ·{" "}
+                {b.scoreboardAtBet.inningHalf === "bottom" ? "Bottom" : "Top"}{" "}
+                {b.scoreboardAtBet.inning} · {b.scoreboardAtBet.outs} out
               </span>
-            </div>
-            {b.scoreboardAtBet ? (
-              <p className="mt-1 text-[10px] leading-relaxed text-white/45">
-                Count:{" "}
-                <span className="text-white/65">
-                  {b.scoreboardAtBet.balls}-{b.scoreboardAtBet.strikes} ·{" "}
-                  {b.scoreboardAtBet.inningHalf === "bottom" ? "Bottom" : "Top"}{" "}
-                  {b.scoreboardAtBet.inning} · {b.scoreboardAtBet.outs} out
-                </span>
-              </p>
-            ) : null}
-            {b.pitcherNameAtBet || b.batterNameAtBet ? (
-              <p className="mt-1 text-[10px] leading-relaxed text-white/45">
-                {b.pitcherNameAtBet ? (
-                  <>
-                    Pitcher: <span className="text-white/65">{b.pitcherNameAtBet}</span>
-                  </>
-                ) : null}
-                {b.pitcherNameAtBet && b.batterNameAtBet ? " · " : null}
-                {b.batterNameAtBet ? (
-                  <>
-                    Batter: <span className="text-white/65">{b.batterNameAtBet}</span>
-                  </>
-                ) : null}
-              </p>
-            ) : null}
+            </p>
+          ) : null}
+          {b.pitcherNameAtBet || b.batterNameAtBet ? (
+            <p className="mt-1 text-[10px] leading-relaxed text-white/45">
+              {b.pitcherNameAtBet ? (
+                <>
+                  Pitcher: <span className="text-white/65">{b.pitcherNameAtBet}</span>
+                </>
+              ) : null}
+              {b.pitcherNameAtBet && b.batterNameAtBet ? " · " : null}
+              {b.batterNameAtBet ? (
+                <>
+                  Batter: <span className="text-white/65">{b.batterNameAtBet}</span>
+                </>
+              ) : null}
+            </p>
+          ) : null}
+          <p className="mt-1 text-xs text-white/45">
+            Stake ${b.stake.toFixed(2)} @ {b.offeredOdds.toFixed(2)}x
+          </p>
+          <p className="text-xs text-white/55">
+            Picks:{" "}
+            {[
+              b.selections.pitchType,
+              b.selections.velocity,
+              formatZonePickLabel(b.selections.zonePick) ?? b.selections.location,
+              b.selections.battingResult,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+          {b.outcome ? (
             <p className="mt-1 text-xs text-white/45">
-              Stake ${b.stake.toFixed(2)} @ {b.offeredOdds.toFixed(2)}x
+              Outcome: {b.outcome.pitchType} /{" "}
+              {b.outcome.speedMph != null
+                ? `${b.outcome.speedMph.toFixed(1)} mph`
+                : b.outcome.velocity}{" "}
+              / {b.outcome.location}
+              {b.outcome.zoneCell != null ? ` · zone ${b.outcome.zoneCell}` : ""}
+              {b.outcome.battingResult != null ? ` · ${b.outcome.battingResult}` : ""}
             </p>
-            <p className="text-xs text-white/55">
-              Picks:{" "}
-              {[
-                b.selections.pitchType,
-                b.selections.velocity,
-                formatZonePickLabel(b.selections.zonePick) ?? b.selections.location,
-                b.selections.battingResult,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
+          ) : null}
+          {b.status !== "pending" ? (
+            <p className="mt-1 text-xs">
+              {b.status === "won" ? (
+                <span className="text-accent-green">
+                  Paid ${(b.payout ?? 0).toFixed(2)}
+                </span>
+              ) : (
+                <span className="text-accent-red">Lost stake</span>
+              )}
             </p>
-            {b.outcome ? (
-              <p className="mt-1 text-xs text-white/45">
-                Outcome: {b.outcome.pitchType} /{" "}
-                {b.outcome.speedMph != null
-                  ? `${b.outcome.speedMph.toFixed(1)} mph`
-                  : b.outcome.velocity}{" "}
-                / {b.outcome.location}
-                {b.outcome.zoneCell != null ? ` · zone ${b.outcome.zoneCell}` : ""}
-                {b.outcome.battingResult != null
-                  ? ` · ${b.outcome.battingResult}`
-                  : ""}
-              </p>
-            ) : null}
-            {b.status !== "pending" ? (
-              <p className="mt-1 text-xs">
-                {b.status === "won" ? (
-                  <span className="text-accent-green">
-                    Paid ${(b.payout ?? 0).toFixed(2)}
-                  </span>
-                ) : (
-                  <span className="text-accent-red">Lost stake</span>
-                )}
-              </p>
-            ) : (
-              <div className="mt-2 space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled={resolvingId === b.id}
-                    onClick={() => resolve(b.id, false)}
-                    className="np-btn-secondary px-2 py-1 text-xs disabled:opacity-40"
-                  >
-                    {resolvingId === b.id ? "…" : "Resolve (live feed)"}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={resolvingId === b.id}
-                    onClick={() => resolve(b.id, true)}
-                    className="rounded-np-control bg-np-blue/90 px-2 py-1 text-xs font-medium text-white shadow-[0_0_16px_rgba(37,99,255,0.35)] hover:bg-np-blue disabled:opacity-40"
-                  >
-                    Demo resolve
-                  </button>
-                </div>
-                {resolveError[b.id] ? (
-                  <p className="text-xs leading-snug text-red-400">{resolveError[b.id]}</p>
-                ) : null}
-              </div>
-            )}
-          </li>
-        ))}
+          ) : null}
+          </Link>
+        </li>
+      ))}
     </ul>
   );
 

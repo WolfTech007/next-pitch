@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { randomUUID } from "crypto";
-import { NP_DEMO_MODE_COOKIE, simulatedPlayCount } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, NP_DEMO_MODE_COOKIE } from "@/lib/demo-mode";
+import {
+  getDemoReplayState,
+  scheduleDemoAdvanceAfterBet,
+} from "@/lib/demo-replay-state";
 import { quoteOdds } from "@/lib/odds";
 import {
   isValidBattingResult,
@@ -144,7 +148,8 @@ export async function POST(req: Request) {
       );
     }
     scoreboardAtBet = clientBoard;
-    playCountAtBet = simulatedPlayCount(gamePk);
+    const pitchIdx = getDemoReplayState(store, gamePk).pitchIndex;
+    playCountAtBet = demoPlayCountFromPitchIndex(gamePk, pitchIdx);
     pitchSignatureAtBet = null;
   } else if (gamePk === DEMO_GAME_PK) {
     playCountAtBet = 0;
@@ -243,6 +248,9 @@ export async function POST(req: Request) {
     store.demoBets = store.demoBets ?? [];
     store.demoBets.unshift(bet);
     store.demoDefaultUnitSize = stake;
+    if (gamePk !== DEMO_GAME_PK) {
+      scheduleDemoAdvanceAfterBet(store, gamePk);
+    }
   } else {
     store.balance -= stake;
     store.bets.unshift(bet);

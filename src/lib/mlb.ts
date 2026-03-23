@@ -323,11 +323,14 @@ function leagueRecordFromSide(side: Record<string, unknown> | undefined): {
 }
 
 /**
- * Same slate as `fetchTodaysGames` (live first, else pre-game; skips finals)
+ * Same slate as `fetchTodaysGames` (live first, else pre-game; skips finals by default)
  * with team ids + records for richer home-page cards.
+ * When `includeCompleted` is true, finished games are included if there are no live/preview
+ * (needed for demo mode, which uses historical dates where every game is final).
  */
 export async function fetchScheduleGameMetaForDate(
   dateStr: string,
+  options?: { includeCompleted?: boolean },
 ): Promise<ScheduleGameMeta[]> {
   const url = `${MLB}/schedule?sportId=1&date=${dateStr}`;
   const res = await fetch(url, { cache: "no-store" });
@@ -335,6 +338,7 @@ export async function fetchScheduleGameMetaForDate(
   const json = await res.json();
   const live: ScheduleGameMeta[] = [];
   const preview: ScheduleGameMeta[] = [];
+  const completed: ScheduleGameMeta[] = [];
   const dates = json.dates ?? [];
   /** Same gamePk can appear more than once in rare multi-date payloads — keep first. */
   const seenGamePk = new Set<number>();
@@ -344,7 +348,6 @@ export async function fetchScheduleGameMetaForDate(
       if (!Number.isFinite(gamePk)) continue;
       const status = g.status as Record<string, unknown> | undefined;
       const abstract = String(status?.abstractGameState ?? "");
-      if (abstract === "Final") continue;
 
       const row = g as Record<string, unknown>;
       const teams = row.teams as Record<string, unknown> | undefined;
@@ -370,6 +373,14 @@ export async function fetchScheduleGameMetaForDate(
         homeRecord: leagueRecordFromSide(homeSide),
       };
 
+      if (abstract === "Final") {
+        if (!options?.includeCompleted) continue;
+        if (seenGamePk.has(gamePk)) continue;
+        seenGamePk.add(gamePk);
+        completed.push(summary);
+        continue;
+      }
+
       if (isGameLiveLike(status)) {
         if (seenGamePk.has(gamePk)) continue;
         seenGamePk.add(gamePk);
@@ -385,7 +396,9 @@ export async function fetchScheduleGameMetaForDate(
     }
   }
   if (live.length > 0) return live;
-  return preview;
+  if (preview.length > 0) return preview;
+  if (options?.includeCompleted && completed.length > 0) return completed;
+  return [];
 }
 
 let teamIdToAbbrevCache: Record<number, string> | null = null;
@@ -1071,6 +1084,166 @@ export function parseRecentPitchesFromFeed(feed: unknown, limit: number): Recent
 
   const tail = chronological.slice(-Math.max(1, limit));
   return tail.reverse();
+}
+
+/** One pitch in real chronological order (demo replay). */
+export type DemoTimelinePitch = {
+  row: RecentPitchFeedRow;
+  outcome: PitchOutcome;
+  playIndex: number;
+  eventIndex: number;
+};
+
+/**
+ * Every pitch in the game in **true order** (Statcast rows), for demo replay.
+ * Same filters as the pitch feed (`pushPitchRowIfValid`).
+ */
+export function collectDemoTimelinePitchesFromFeed(feed: unknown): DemoTimelinePitch[] {
+  const f = feed as Record<string, unknown>;
+  const liveData = f?.liveData as Record<string, unknown> | undefined;
+  const plays = liveData?.plays as Record<string, unknown> | undefined;
+  const allPlays = (plays?.allPlays as unknown[]) ?? [];
+  const out: DemoTimelinePitch[] = [];
+
+  for (let i = 0; i < allPlays.length; i++) {
+    const play = allPlays[i] as Record<string, unknown>;
+    const events = (play.playEvents as unknown[]) ?? [];
+    for (let j = 0; j < events.length; j++) {
+      const ev = events[j] as Record<string, unknown>;
+      if (isPickoffLikeEvent(ev)) continue;
+      const o = outcomeFromPitchEvent(ev);
+      if (!o) continue;
+      const pitchData = ev.pitchData as Record<string, unknown> | undefined;
+      const z = pitchData?.zone != null ? Number(pitchData.zone) : null;
+      const zn = z != null && Number.isFinite(z) ? z : null;
+      const countResult = pitchCountResultFromEvent(ev);
+      const plot = plotPitchFromPitchData(pitchData, zn, o.location, { countResult });
+      const row: RecentPitchFeedRow = {
+        id: `${i}-${j}`,
+        pitchType: o.pitchType,
+        speedMph: o.speedMph ?? null,
+        callText: callTextFromPitchEvent(ev),
+        zone: zn,
+        plotX: plot.x,
+        plotY: plot.y,
+        countResult,
+      };
+      out.push({ row, outcome: o, playIndex: i, eventIndex: j });
+    }
+  }
+  return out;
+}
+
+function halfInningFromAbout(about: Record<string, unknown> | undefined): "top" | "bottom" {
+  if (!about) return "top";
+  if (about.isTopInning === true) return "top";
+  if (about.isTopInning === false) return "bottom";
+  const h = String(about.halfInning ?? "").toLowerCase();
+  return h.includes("bottom") ? "bottom" : "top";
+}
+
+/** Away / home club names from `feed/live` gameData. */
+export function gameTeamNamesFromFeed(feed: unknown): { away: string; home: string } {
+  const f = feed as Record<string, unknown>;
+  const gd = f?.gameData as Record<string, unknown> | undefined;
+  const teams = gd?.teams as Record<string, unknown> | undefined;
+  const away = teamNameFromGameSide(teams?.away as Record<string, unknown> | undefined) ?? "Away";
+  const home = teamNameFromGameSide(teams?.home as Record<string, unknown> | undefined) ?? "Home";
+  return { away, home };
+}
+
+/**
+ * Scoreboard totals **as of** this pitch (cumulative from `play.result` on prior plays / this PA).
+ */
+export function scoreFromFeedAtPitchEvent(
+  feed: unknown,
+  playIndex: number,
+  eventIndex: number,
+): { away: number; home: number } {
+  const f = feed as Record<string, unknown>;
+  const liveData = f?.liveData as Record<string, unknown> | undefined;
+  const plays = liveData?.plays as Record<string, unknown> | undefined;
+  const allPlays = (plays?.allPlays as unknown[]) ?? [];
+  const play = allPlays[playIndex] as Record<string, unknown> | undefined;
+  if (!play) return { away: 0, home: 0 };
+  const events = (play.playEvents as unknown[]) ?? [];
+  let lastPitchEventIdx = -1;
+  for (let j = events.length - 1; j >= 0; j--) {
+    const ev = events[j] as Record<string, unknown>;
+    if (isPickoffLikeEvent(ev)) continue;
+    if (outcomeFromPitchEvent(ev)) lastPitchEventIdx = j;
+  }
+  const isLastPitchOfPa = lastPitchEventIdx >= 0 && eventIndex >= lastPitchEventIdx;
+  const r = play.result as Record<string, unknown> | undefined;
+  if (isLastPitchOfPa && r?.awayScore != null && r?.homeScore != null) {
+    return { away: Number(r.awayScore), home: Number(r.homeScore) };
+  }
+  if (playIndex === 0) return { away: 0, home: 0 };
+  const prev = allPlays[playIndex - 1] as Record<string, unknown> | undefined;
+  const pr = prev?.result as Record<string, unknown> | undefined;
+  if (pr?.awayScore != null && pr?.homeScore != null) {
+    return { away: Number(pr.awayScore), home: Number(pr.homeScore) };
+  }
+  return { away: 0, home: 0 };
+}
+
+/**
+ * Inning, count, matchup, bases — aligned to this pitch event in the feed.
+ */
+export function situationFromFeedAtPitchEvent(
+  feed: unknown,
+  playIndex: number,
+  eventIndex: number,
+  gamePk: number,
+): GameSituation | null {
+  const f = feed as Record<string, unknown>;
+  const liveData = f?.liveData as Record<string, unknown> | undefined;
+  const plays = liveData?.plays as Record<string, unknown> | undefined;
+  const allPlays = (plays?.allPlays as unknown[]) ?? [];
+  const play = allPlays[playIndex] as Record<string, unknown> | undefined;
+  if (!play) return null;
+  const events = (play.playEvents as unknown[]) ?? [];
+  const event = events[eventIndex] as Record<string, unknown> | undefined;
+  if (!event) return null;
+
+  const names = gameTeamNamesFromFeed(feed);
+  const about = play.about as Record<string, unknown> | undefined;
+  const inning = Number(about?.inning ?? 1);
+  const half = halfInningFromAbout(about);
+  const count = event.count as Record<string, unknown> | undefined;
+  const balls = Number(count?.balls ?? 0);
+  const strikes = Number(count?.strikes ?? 0);
+  const outs = Number(count?.outs ?? 0);
+
+  const matchup = play.matchup as Record<string, unknown> | undefined;
+  const pitcher = matchup?.pitcher as Record<string, unknown> | undefined;
+  const batter = matchup?.batter as Record<string, unknown> | undefined;
+  const pitcherName = typeof pitcher?.fullName === "string" ? pitcher.fullName : "—";
+  const batterName = typeof batter?.fullName === "string" ? batter.fullName : "—";
+  const pitcherId = personIdFromNode(pitcher);
+  const batterId = personIdFromNode(batter);
+
+  const ls = liveData?.linescore as Record<string, unknown> | undefined;
+  const offense = ls?.offense as Record<string, unknown> | undefined;
+  const bases = baseOccupancyFromOffense(offense);
+
+  return {
+    gamePk,
+    away: names.away,
+    home: names.home,
+    inning: Number.isFinite(inning) ? inning : 1,
+    inningHalf: half,
+    outs: Number.isFinite(outs) ? outs : 0,
+    balls: Number.isFinite(balls) ? balls : 0,
+    strikes: Number.isFinite(strikes) ? strikes : 0,
+    pitcherName,
+    batterName,
+    pitcherId,
+    batterId,
+    onFirst: bases.onFirst,
+    onSecond: bases.onSecond,
+    onThird: bases.onThird,
+  };
 }
 
 /**

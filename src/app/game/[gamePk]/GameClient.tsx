@@ -34,7 +34,14 @@ type GamePayload = {
 /**
  * Live game + next-pitch betting — dashboard layout (hero zone · slip · pitch history).
  */
-export function GameClient({ gamePk }: { gamePk: number }) {
+export function GameClient({
+  gamePk,
+  demoMode = false,
+}: {
+  gamePk: number;
+  /** Slower polling when the server simulates pitch timing (demo cookie). */
+  demoMode?: boolean;
+}) {
   const [data, setData] = useState<GamePayload | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
@@ -152,7 +159,11 @@ export function GameClient({ gamePk }: { gamePk: number }) {
 
   useEffect(() => {
     let cancelled = false;
-    const intervalMs = gamePk === DEMO_GAME_ID ? 5000 : 750;
+    const intervalMs = demoMode
+      ? 4000
+      : gamePk === DEMO_GAME_ID
+        ? 5000
+        : 750;
     async function load() {
       try {
         const res = await fetch(`/api/game/${gamePk}`, { cache: "no-store" });
@@ -175,7 +186,7 @@ export function GameClient({ gamePk }: { gamePk: number }) {
       cancelled = true;
       clearInterval(id);
     };
-  }, [gamePk]);
+  }, [gamePk, demoMode]);
 
   if (err || !data) {
     return (
