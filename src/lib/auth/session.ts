@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import type { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NP_SESSION_COOKIE, SESSION_MAX_AGE_SEC } from "./constants";
 import { jwtSecretKey } from "./secret";
 
@@ -32,10 +32,33 @@ export async function verifySessionToken(
   }
 }
 
-/** Server routes / RSC — read httpOnly cookie. */
+/**
+ * Parse session JWT from a raw Cookie header (Vercel/serverless sometimes omits cookies in
+ * `cookies()` while the browser still sends the header).
+ */
+function parseSessionTokenFromCookieHeader(raw: string | null): string | null {
+  if (!raw) return null;
+  const prefix = `${NP_SESSION_COOKIE}=`;
+  for (const part of raw.split(";")) {
+    const s = part.trim();
+    if (!s.startsWith(prefix)) continue;
+    const v = s.slice(prefix.length);
+    try {
+      return decodeURIComponent(v);
+    } catch {
+      return v;
+    }
+  }
+  return null;
+}
+
+/** Server routes / RSC — read httpOnly cookie; merge raw Cookie header when jar is incomplete. */
 export async function getSession(): Promise<SessionPayload | null> {
   const jar = await cookies();
-  const token = jar.get(NP_SESSION_COOKIE)?.value;
+  let token = jar.get(NP_SESSION_COOKIE)?.value ?? null;
+  if (!token) {
+    token = parseSessionTokenFromCookieHeader((await headers()).get("cookie"));
+  }
   if (!token) return null;
   return verifySessionToken(token);
 }
