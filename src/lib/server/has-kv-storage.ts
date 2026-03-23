@@ -1,13 +1,10 @@
+import { getRedisConnectionEnv } from "./redis-env";
+
 /**
- * True when Vercel KV / Upstash Redis env is present (production persistence).
- * Local dev usually omits these and uses `data/*.json` on disk instead.
+ * True when Upstash REST URL + token are available (same rules as `getRedis()`).
  */
 export function hasKvStorage(): boolean {
-  const kv = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-  const upstash = Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
-  );
-  return kv || upstash;
+  return getRedisConnectionEnv() !== null;
 }
 
 /**
@@ -23,4 +20,4 @@ export function isVercelProductionFilesystem(): boolean {
 }
 
 export const MISSING_REDIS_MESSAGE =
-  "Server storage isn’t set up yet. In Vercel: open your project → Storage → Create a Redis database (Upstash) → Connect to this project → Redeploy. Then try again.";
+  "Server storage isn’t set up yet. In Vercel → Settings → Environment Variables, ensure UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or KV_REST_*) are set for Production, then Redeploy. Check /api/health/storage — redisEnvConfigured should be true.";

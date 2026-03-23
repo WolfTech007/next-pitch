@@ -1,19 +1,17 @@
 import { Redis } from "@upstash/redis";
+import { getRedisConnectionEnv } from "./redis-env";
 
 let _redis: Redis | null = null;
 
-/**
- * Shared Upstash REST client. Vercel may expose either KV_* or UPSTASH_REDIS_* env names.
- */
+/** Shared Upstash REST client (env from {@link getRedisConnectionEnv}). */
 export function getRedis(): Redis {
   if (_redis) return _redis;
-  const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) {
+  const creds = getRedisConnectionEnv();
+  if (!creds) {
     throw new Error(
-      "[redis] Set KV_REST_API_URL + KV_REST_API_TOKEN (or UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN) in Vercel.",
+      "[redis] Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL + KV_REST_API_TOKEN) in Vercel.",
     );
   }
-  _redis = new Redis({ url, token });
+  _redis = new Redis({ url: creds.url, token: creds.token });
   return _redis;
 }
