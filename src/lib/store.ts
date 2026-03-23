@@ -1,6 +1,10 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { hasKvStorage } from "@/lib/server/has-kv-storage";
+import {
+  hasKvStorage,
+  isVercelProductionFilesystem,
+  MISSING_REDIS_MESSAGE,
+} from "@/lib/server/has-kv-storage";
 import { getRedis } from "@/lib/server/redis";
 import type { ZonePick } from "./markets";
 
@@ -120,6 +124,9 @@ export async function writeStore(userId: string, data: StoreData): Promise<void>
   if (hasKvStorage()) {
     await getRedis().set(kvStoreKey(userId), JSON.stringify(data));
     return;
+  }
+  if (isVercelProductionFilesystem()) {
+    throw new Error(MISSING_REDIS_MESSAGE);
   }
   await ensureUserDataDir();
   const p = userStorePath(userId);

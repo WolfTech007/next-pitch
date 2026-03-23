@@ -1,7 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
-import { hasKvStorage } from "@/lib/server/has-kv-storage";
+import {
+  hasKvStorage,
+  isVercelProductionFilesystem,
+  MISSING_REDIS_MESSAGE,
+} from "@/lib/server/has-kv-storage";
 import { getRedis } from "@/lib/server/redis";
 
 export type AuthUser = {
@@ -50,6 +54,9 @@ export async function writeRegistry(users: AuthUser[]): Promise<void> {
   if (hasKvStorage()) {
     await getRedis().set(KV_AUTH_KEY, JSON.stringify(body));
     return;
+  }
+  if (isVercelProductionFilesystem()) {
+    throw new Error(MISSING_REDIS_MESSAGE);
   }
   await ensureDir();
   await fs.writeFile(registryPath(), JSON.stringify(body, null, 2), "utf8");

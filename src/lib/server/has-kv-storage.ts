@@ -9,3 +9,11 @@ export function hasKvStorage(): boolean {
   );
   return kv || upstash;
 }
+
+/** Vercel serverless has a read-only disk — file writes must not run in production without Redis. */
+export function isVercelProductionFilesystem(): boolean {
+  return process.env.VERCEL === "1";
+}
+
+export const MISSING_REDIS_MESSAGE =
+  "Server storage isn’t set up yet. In Vercel: open your project → Storage → Create a Redis database (Upstash) → Connect to this project → Redeploy. Then try again.";
