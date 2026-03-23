@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { demoModeRequestHeaders } from "@/lib/demo-mode-client";
+import {
+  apiUrlWithDemoSearch,
+  demoModeRequestHeaders,
+  isClientDemoMode,
+} from "@/lib/demo-mode-client";
 import { BetHistory } from "@/components/BetHistory";
 import { BetPanel } from "@/components/BetPanel";
 import { GameLiveHeader } from "@/components/game/GameLiveHeader";
@@ -54,6 +58,12 @@ export function GameClient({
   const [resultActualCell, setResultActualCell] = useState<number | null>(null);
   const [ballResult, setBallResult] = useState<"win" | "lose" | null>(null);
   const fadeTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const [clientDemo, setClientDemo] = useState(false);
+  useEffect(() => {
+    setClientDemo(isClientDemoMode());
+  }, []);
+  const effectiveDemo = demoMode || clientDemo;
 
   useEffect(() => {
     setZonePick(null);
@@ -111,7 +121,7 @@ export function GameClient({
     let cancelled = false;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/bets", {
+        const res = await fetch(apiUrlWithDemoSearch("/api/bets"), {
           credentials: "include",
           cache: "no-store",
           headers: demoModeRequestHeaders(),
@@ -164,14 +174,14 @@ export function GameClient({
 
   useEffect(() => {
     let cancelled = false;
-    const intervalMs = demoMode
+    const intervalMs = effectiveDemo
       ? 4000
       : gamePk === DEMO_GAME_ID
         ? 5000
         : 750;
     async function load() {
       try {
-        const res = await fetch(`/api/game/${gamePk}`, {
+        const res = await fetch(apiUrlWithDemoSearch(`/api/game/${gamePk}`), {
           cache: "no-store",
           credentials: "include",
           headers: demoModeRequestHeaders(),
@@ -195,7 +205,7 @@ export function GameClient({
       cancelled = true;
       clearInterval(id);
     };
-  }, [gamePk, demoMode]);
+  }, [gamePk, effectiveDemo]);
 
   if (err || !data) {
     return (

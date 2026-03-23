@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
-import { demoPlayCountFromPitchIndex, readDemoModeFromCookies } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, resolveDemoModeForApi } from "@/lib/demo-mode";
 import {
   applyDemoReplayAdvanceIfDue,
   getDemoReplayState,
@@ -104,7 +104,7 @@ export async function GET(_req: Request, segment: Params) {
     });
   }
 
-  const { enabled: demoMode } = await readDemoModeFromCookies();
+  const { enabled: demoMode } = await resolveDemoModeForApi(_req);
   if (demoMode) {
     const session = await getSession();
     let pitchIndex = 0;

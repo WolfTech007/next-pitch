@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { demoPlayCountFromPitchIndex, readDemoModeFromCookies } from "@/lib/demo-mode";
+import {
+  demoPlayCountFromPitchIndex,
+  resolveDemoModeForApi,
+} from "@/lib/demo-mode";
 import {
   getDemoReplayState,
   scheduleDemoAdvanceAfterBet,
@@ -61,6 +64,8 @@ export async function POST(req: Request) {
     scoreboardAtBet?: unknown;
     selections?: SlipSelections;
     stake?: number;
+    /** Set by the browser when demo toggle is on (Vercel may not forward demo cookies). */
+    clientDemoMode?: boolean;
   };
   try {
     body = await req.json();
@@ -118,7 +123,9 @@ export async function POST(req: Request) {
   }
 
   const store = normalizeStoreData(await readStore(session.userId));
-  const { enabled: demoMode } = await readDemoModeFromCookies();
+  const { enabled: demoMode } = await resolveDemoModeForApi(req, {
+    clientAssertDemo: body.clientDemoMode === true,
+  });
 
   const liveBal = store.balance;
   const demoBal = store.demoBalance ?? 1000;

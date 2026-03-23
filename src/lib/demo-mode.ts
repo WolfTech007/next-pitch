@@ -5,6 +5,8 @@ import {
   NP_DEMO_HEADER_ON,
   NP_DEMO_MODE_COOKIE,
   NP_DEMO_MODE_HEADER,
+  NP_DEMO_QUERY_PARAM,
+  NP_DEMO_QUERY_VALUE,
 } from "@/lib/demo-mode-constants";
 
 export {
@@ -13,6 +15,8 @@ export {
   NP_DEMO_HEADER_ON,
   NP_DEMO_MODE_COOKIE,
   NP_DEMO_MODE_HEADER,
+  NP_DEMO_QUERY_PARAM,
+  NP_DEMO_QUERY_VALUE,
 } from "@/lib/demo-mode-constants";
 
 /** Eastern-calendar dates with full MLB slates (summer weekends + opening week). */
@@ -106,4 +110,41 @@ export async function readDemoModeFromCookies(): Promise<{
   }
 
   return { enabled, date };
+}
+
+/**
+ * API routes: same as cookies/headers, plus optional `?np_demo=1` and JSON
+ * `{ clientDemoMode: true }` so the server matches the browser when cookies are missing on Vercel.
+ */
+export async function resolveDemoModeForApi(
+  req: Request | null,
+  options?: { clientAssertDemo?: boolean },
+): Promise<{ enabled: boolean; date: string | null }> {
+  const base = await readDemoModeFromCookies();
+  if (base.enabled) return base;
+
+  if (options?.clientAssertDemo === true) {
+    return {
+      enabled: true,
+      date:
+        base.date && base.date.length >= 8 ? base.date : DEMO_SCHEDULE_DATES[0] ?? null,
+    };
+  }
+
+  if (req) {
+    try {
+      const u = new URL(req.url);
+      if (u.searchParams.get(NP_DEMO_QUERY_PARAM) === NP_DEMO_QUERY_VALUE) {
+        return {
+          enabled: true,
+          date:
+            base.date && base.date.length >= 8 ? base.date : DEMO_SCHEDULE_DATES[0] ?? null,
+        };
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return base;
 }

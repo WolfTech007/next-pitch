@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
-import { readDemoModeFromCookies } from "@/lib/demo-mode";
+import { resolveDemoModeForApi } from "@/lib/demo-mode";
 import { getSession } from "@/lib/auth/session";
 import { normalizeStoreData, readStore } from "@/lib/store";
 
 /** Public — returns `user: null` when logged out (for header / home). */
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ user: null, balance: null });
     }
     const store = normalizeStoreData(await readStore(session.userId));
-    const { enabled: demoMode } = await readDemoModeFromCookies();
+    const { enabled: demoMode } = await resolveDemoModeForApi(req);
     const balance = demoMode ? store.demoBalance ?? 1000 : store.balance;
     return NextResponse.json({
       user: { id: session.userId, email: session.email },

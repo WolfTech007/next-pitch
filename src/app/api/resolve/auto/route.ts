@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { autoResolveDemoPendingForGame, autoResolvePendingForGame } from "@/lib/betResolve";
-import { demoPlayCountFromPitchIndex, readDemoModeFromCookies } from "@/lib/demo-mode";
+import { demoPlayCountFromPitchIndex, resolveDemoModeForApi } from "@/lib/demo-mode";
 import {
   applyDemoReplayAdvanceIfDue,
   getDemoReplayState,
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
 
-  let body: { gamePk?: number };
+  let body: { gamePk?: number; clientDemoMode?: boolean };
   try {
     body = await req.json();
   } catch {
@@ -33,7 +33,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "gamePk required" }, { status: 400 });
   }
 
-  const { enabled: demoMode } = await readDemoModeFromCookies();
+  const { enabled: demoMode } = await resolveDemoModeForApi(req, {
+    clientAssertDemo: body.clientDemoMode === true,
+  });
 
   if (demoMode) {
     const store = normalizeStoreData(await readStore(session.userId));

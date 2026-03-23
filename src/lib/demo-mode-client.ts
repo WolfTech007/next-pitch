@@ -6,6 +6,8 @@ import {
   NP_DEMO_HEADER_ON,
   NP_DEMO_MODE_COOKIE,
   NP_DEMO_MODE_HEADER,
+  NP_DEMO_QUERY_PARAM,
+  NP_DEMO_QUERY_VALUE,
 } from "@/lib/demo-mode-constants";
 
 function escCookieName(name: string): string {
@@ -36,4 +38,23 @@ export function demoModeRequestHeaders(): Record<string, string> {
     }
   }
   return out;
+}
+
+/** True when the browser has demo mode cookies (same check as {@link demoModeRequestHeaders}). */
+export function isClientDemoMode(): boolean {
+  if (typeof document === "undefined") return false;
+  const m = document.cookie.match(
+    new RegExp(`(?:^|; )${escCookieName(NP_DEMO_MODE_COOKIE)}=([^;]*)`),
+  );
+  return m?.[1] === NP_DEMO_HEADER_ON;
+}
+
+/**
+ * Appends `?np_demo=1` so GET handlers see demo when cookies are missing (Vercel).
+ */
+export function apiUrlWithDemoSearch(path: string): string {
+  if (typeof document === "undefined") return path;
+  if (!isClientDemoMode()) return path;
+  const sep = path.includes("?") ? "&" : "?";
+  return `${path}${sep}${NP_DEMO_QUERY_PARAM}=${NP_DEMO_QUERY_VALUE}`;
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { demoModeRequestHeaders } from "@/lib/demo-mode-client";
+import { apiUrlWithDemoSearch, demoModeRequestHeaders } from "@/lib/demo-mode-client";
 import { formatZonePickLabel } from "@/lib/markets";
 import type { StoredBet } from "@/lib/store";
 
@@ -23,7 +23,7 @@ export function BetHistory({
   } | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/bets", {
+    const res = await fetch(apiUrlWithDemoSearch("/api/bets"), {
       credentials: "include",
       cache: "no-store",
       headers: demoModeRequestHeaders(),

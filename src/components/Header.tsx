@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { demoModeRequestHeaders } from "@/lib/demo-mode-client";
+import { apiUrlWithDemoSearch, demoModeRequestHeaders } from "@/lib/demo-mode-client";
 
 type Me = {
   user: { id: string; email: string } | null;
@@ -20,7 +20,7 @@ export function Header() {
   useEffect(() => {
     let cancelled = false;
     async function tick() {
-      const res = await fetch("/api/auth/me", {
+      const res = await fetch(apiUrlWithDemoSearch("/api/auth/me"), {
         cache: "no-store",
         credentials: "include",
         headers: demoModeRequestHeaders(),
