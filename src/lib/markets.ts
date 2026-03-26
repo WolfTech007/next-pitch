@@ -33,6 +33,8 @@ export const BAT_RESULT_BUCKETS = ["Hit", "Ball", "Strike", "Foul"] as const;
 
 export type PitchType = (typeof PITCH_TYPES)[number];
 export type VelocityBucket = (typeof VELOCITY_BUCKETS)[number];
+/** UI can also pick an exact mph (stored as a string like "97"). */
+export type VelocityPick = VelocityBucket | `${number}`;
 export type LocationBucket = (typeof LOCATION_BUCKETS)[number];
 export type BattingResult = (typeof BAT_RESULT_BUCKETS)[number];
 
@@ -44,7 +46,7 @@ export type ZonePick =
 /** What the user can attach to a slip (1–3 picks). */
 export type SlipSelections = {
   pitchType?: PitchType;
-  velocity?: VelocityBucket;
+  velocity?: VelocityPick;
   /** Legacy bucket — do not combine with `zonePick`. */
   location?: LocationBucket;
   battingResult?: BattingResult;

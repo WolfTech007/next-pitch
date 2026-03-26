@@ -896,7 +896,9 @@ const ZONE_GUESS_XY: Record<number, [number, number]> = {
 };
 
 function clampPct(n: number): number {
-  return Math.min(94, Math.max(6, n));
+  // MLB Gameday allows dots to sit closer to the panel edges than our previous clamp.
+  // Keep a small safety margin so markers don't clip into rounded corners.
+  return Math.min(98, Math.max(2, n));
 }
 
 const SZ_RIGHT = SZ_LEFT + SZ_W;
@@ -984,12 +986,15 @@ export function plotPitchFromPitchData(
     const szTop = Number(pitchData?.strikeZoneTop ?? 3.5);
     const szBot = Number(pitchData?.strikeZoneBottom ?? 1.65);
     const span = Math.max(0.35, szTop - szBot);
-    // Slightly wider horizontal span so wide balls sit clearly outside the box.
-    const halfPlateFt = 2.45;
+    // MLB Gameday uses a tighter horizontal scaling than our previous mapping.
+    // Statcast pX is measured in feet from plate center; typical values cluster ~[-1.5, 1.5].
+    const halfPlateFt = 1.75;
     const pxClamped = Math.max(-halfPlateFt, Math.min(halfPlateFt, pX));
     const xPct = SZ_LEFT + SZ_W / 2 + pxClamped * (SZ_W / 2 / halfPlateFt);
+
     const t = (pZ - szBot) / span;
-    const tClamped = Math.max(-0.42, Math.min(1.42, t));
+    // Allow a small overshoot above/below the box for high/low pitches.
+    const tClamped = Math.max(-0.25, Math.min(1.25, t));
     const yBot = SZ_BOTTOM;
     const yPct = yBot - tClamped * SZ_H;
     plot = { x: clampPct(xPct), y: clampPct(yPct) };
@@ -997,9 +1002,6 @@ export function plotPitchFromPitchData(
     plot = guessPlotFromZoneAndLocation(zone, location);
   }
 
-  if (options?.countResult === "ball") {
-    plot = ballPlotOutsideStrikeZone(plot.x, plot.y);
-  }
   return plot;
 }
 
@@ -1328,7 +1330,16 @@ export function slipWins(
   outcome: PitchOutcome,
 ): boolean {
   if (selections.pitchType && selections.pitchType !== outcome.pitchType) return false;
-  if (selections.velocity && selections.velocity !== outcome.velocity) return false;
+  if (selections.velocity) {
+    const mphSel = Number(selections.velocity);
+    if (Number.isFinite(mphSel) && String(selections.velocity).trim() !== "") {
+      const mphOut = outcome.speedMph;
+      if (mphOut == null || !Number.isFinite(mphOut)) return false;
+      if (Math.abs(mphOut - mphSel) > 1.0) return false;
+    } else if (selections.velocity !== outcome.velocity) {
+      return false;
+    }
+  }
   if (selections.zonePick) {
     if (selections.zonePick.mode === "ball") {
       if (outcome.zoneCell !== null) return false;

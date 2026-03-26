@@ -5,6 +5,7 @@ import type {
   PitchType,
   SlipSelections,
   VelocityBucket,
+  VelocityPick,
   ZonePick,
 } from "./markets";
 
@@ -38,6 +39,37 @@ export function getPitchTypeProb(p: PitchType): number {
 
 export function getVelocityProb(v: VelocityBucket): number {
   return file.velocity[v] ?? 0.2;
+}
+
+function mphVelocityProb(mph: number): number {
+  // Approx P(|V - mph| <= 1). We model V ~ N(92, 4.3) as a global prior.
+  // This keeps pricing stable while UI can still show a matchup-tuned gradient.
+  const mu = 92;
+  const sigma = 4.3;
+  const z1 = (mph - 1 - mu) / sigma;
+  const z2 = (mph + 1 - mu) / sigma;
+  // Normal CDF approximation (Abramowitz-Stegun style) for smooth odds.
+  const cdf = (z: number) => {
+    const t = 1 / (1 + 0.2316419 * Math.abs(z));
+    const d = 0.3989423 * Math.exp((-z * z) / 2);
+    const p =
+      d *
+      t *
+      (0.3193815 +
+        t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    const base = z >= 0 ? 1 - p : p;
+    return Math.max(0, Math.min(1, base));
+  };
+  const prob = cdf(z2) - cdf(z1);
+  return Math.max(1e-6, Math.min(0.6, prob));
+}
+
+export function getVelocityPickProb(v: VelocityPick): number {
+  const n = Number(v);
+  if (Number.isFinite(n) && String(v).trim() !== "") {
+    return mphVelocityProb(n);
+  }
+  return getVelocityProb(v as VelocityBucket);
 }
 
 export function getLocationProb(l: LocationBucket): number {
@@ -91,7 +123,7 @@ export function combinedProbability(selections: SlipSelections): number {
     legs++;
   }
   if (selections.velocity) {
-    p *= getVelocityProb(selections.velocity);
+    p *= getVelocityPickProb(selections.velocity);
     legs++;
   }
   if (selections.zonePick) {

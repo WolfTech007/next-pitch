@@ -77,18 +77,10 @@ export function StrikeZonePlacementLayer({
       return { fill: "transparent", fillOpacity: 0, stroke: "transparent", strokeOpacity: 0 };
     }
     if (ballActive) {
-      if (interactive && hover === idx) {
-        return {
-          fill: "rgba(37, 99, 255, 0.32)",
-          fillOpacity: 1,
-          stroke: "rgba(0, 207, 255, 0.48)",
-          strokeOpacity: 1,
-        };
-      }
       return {
         fill: "transparent",
         fillOpacity: 0,
-        stroke: "rgba(59, 130, 246, 0.18)",
+        stroke: "rgba(255, 255, 255, 0.07)",
         strokeOpacity: 1,
       };
     }

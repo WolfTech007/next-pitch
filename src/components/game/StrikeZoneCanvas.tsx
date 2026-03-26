@@ -57,6 +57,32 @@ function dotFill(r: RecentPitchFeedRow["countResult"]): string {
   }
 }
 
+function dotStroke(r: RecentPitchFeedRow["countResult"]): string {
+  switch (r) {
+    case "ball":
+      return "rgba(255, 55, 85, 0.98)";
+    case "strike":
+      return "rgba(0, 255, 163, 0.98)";
+    case "foul":
+      return "rgba(255, 214, 0, 0.98)";
+    default:
+      return "rgba(147, 197, 253, 0.55)";
+  }
+}
+
+function dotGlow(r: RecentPitchFeedRow["countResult"]): string {
+  switch (r) {
+    case "ball":
+      return "rgba(255, 55, 85, 0.38)";
+    case "strike":
+      return "rgba(0, 255, 163, 0.34)";
+    case "foul":
+      return "rgba(255, 214, 0, 0.3)";
+    default:
+      return "rgba(37, 99, 255, 0.22)";
+  }
+}
+
 /**
  * Large strike-zone view — dots colored by ball / strike / foul for this at-bat only.
  * Optional 3×3 placement grid + full-tab “outside strike zone” click for Ball.
@@ -73,93 +99,70 @@ export function StrikeZoneCanvas({
   const mapSvgRef = useRef<SVGSVGElement>(null);
   const chronological = [...(pitches ?? [])].reverse();
 
-  const fadeWrap =
-    placement?.phase === "fade"
-      ? "opacity-0 transition-opacity duration-[450ms] ease-out"
-      : "opacity-100 transition-opacity duration-300 ease-out";
-
-  const mapSvgInner = (
+  const pitchDotsAndBetMarker = (
     <>
-      <defs>
-        <linearGradient id={`szFill-${filterId}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#12203a" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#070d18" stopOpacity="0.82" />
-        </linearGradient>
-        {/*
-          No feGaussianBlur on the zone fill: blur expands the paint bounds and the root SVG
-          clips to viewBox, so the fill looked shifted vs. unfiltered grid lines.
-        */}
-      </defs>
-      {/* Soft outer rim light */}
-      <rect
-        x={SZ.x - 0.35}
-        y={SZ.y - 0.35}
-        width={SZ.w + 0.7}
-        height={SZ.h + 0.7}
-        rx="0.75"
-        fill="none"
-        stroke="rgba(37, 99, 255, 0.14)"
-        strokeWidth="0.85"
-        opacity={0.95}
-        pointerEvents="none"
-      />
-      <rect
-        x={SZ.x}
-        y={SZ.y}
-        width={SZ.w}
-        height={SZ.h}
-        rx="0.6"
-        fill={`url(#szFill-${filterId})`}
-        stroke="rgba(0, 207, 255, 0.22)"
-        strokeWidth="0.75"
-        pointerEvents="none"
-      />
-      {placement ? (
-        <StrikeZonePlacementLayer
-          phase={placement.phase}
-          draftPick={placement.draftPick}
-          lockedPick={placement.lockedPick}
-          resultActualCell={placement.resultActualCell}
-          onToggleCell={placement.onToggleCell}
-        />
-      ) : null}
-      <g pointerEvents="none" opacity={0.55} stroke="rgba(37, 99, 255, 0.38)" strokeWidth="1.05">
-        <line x1={SZ_V1} y1={SZ.y} x2={SZ_V1} y2={SZ.y + SZ.h} strokeLinecap="round" />
-        <line x1={SZ_V2} y1={SZ.y} x2={SZ_V2} y2={SZ.y + SZ.h} strokeLinecap="round" />
-        <line x1={SZ.x} y1={SZ_H1} x2={SZ.x + SZ.w} y2={SZ_H1} strokeLinecap="round" />
-        <line x1={SZ.x} y1={SZ_H2} x2={SZ.x + SZ.w} y2={SZ_H2} strokeLinecap="round" />
-      </g>
-      <g pointerEvents="none" stroke="rgba(186, 230, 253, 0.32)" strokeWidth="0.32">
-        <line x1={SZ_V1} y1={SZ.y} x2={SZ_V1} y2={SZ.y + SZ.h} />
-        <line x1={SZ_V2} y1={SZ.y} x2={SZ_V2} y2={SZ.y + SZ.h} />
-        <line x1={SZ.x} y1={SZ_H1} x2={SZ.x + SZ.w} y2={SZ_H1} />
-        <line x1={SZ.x} y1={SZ_H2} x2={SZ.x + SZ.w} y2={SZ_H2} />
-      </g>
       {chronological.map((p, i) => {
         const isLast = i === chronological.length - 1;
-        const fill = dotFill(p.countResult);
+        const stroke = dotStroke(p.countResult);
+        const glow = dotGlow(p.countResult);
         const pitchNo = i + 1;
         const fontSize = pitchNo > 9 ? (isLast ? 3 : 2.5) : isLast ? 3.9 : 3.1;
+        const r = isLast ? 4.05 : 3.05;
+        const outerGlow = `drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 18px ${glow})`;
         return (
-          <g key={p.id} pointerEvents="none">
+          <g
+            key={p.id}
+            pointerEvents="none"
+            className={isLast ? "np-tron-pop" : ""}
+            style={{ filter: isLast ? outerGlow : `drop-shadow(0 0 8px ${glow})` }}
+          >
+            {/* thin neon ring */}
             <circle
               cx={p.plotX}
               cy={p.plotY}
-              r={isLast ? 4.2 : 3.2}
-              fill={fill}
-              fillOpacity={isLast ? 1 : 0.88}
-              stroke="rgb(9 9 11)"
-              strokeWidth="0.5"
+              r={r}
+              fill="transparent"
+              stroke={stroke}
+              strokeWidth={1.05}
+              opacity={isLast ? 1 : 0.88}
+            />
+            {/* lock-in dash overlay (latest pitch only) */}
+            {isLast ? (
+              <circle
+                cx={p.plotX}
+                cy={p.plotY}
+                r={r}
+                fill="transparent"
+                stroke="rgba(255,255,255,0.35)"
+                strokeWidth={0.6}
+                className="np-tron-lock"
+              />
+            ) : null}
+            {/* subtle inner rim to feel glassy, still transparent */}
+            <circle
+              cx={p.plotX}
+              cy={p.plotY}
+              r={Math.max(1, r - 0.8)}
+              fill="transparent"
+              stroke="rgba(255,255,255,0.14)"
+              strokeWidth={0.55}
+              opacity={isLast ? 0.75 : 0.45}
             />
             <text
               x={p.plotX}
               y={p.plotY}
               textAnchor="middle"
               dominantBaseline="central"
-              fill="#ffffff"
+              fill="rgba(255,255,255,0.96)"
               fontSize={fontSize}
-              fontWeight={700}
+              fontWeight={720}
               fontFamily="ui-monospace, system-ui, sans-serif"
+              style={{
+                paintOrder: "stroke",
+                stroke: "rgba(0,0,0,0.6)",
+                strokeWidth: 0.85,
+                filter: `drop-shadow(0 0 6px ${glow})`,
+              }}
             >
               {pitchNo}
             </text>
@@ -188,61 +191,106 @@ export function StrikeZoneCanvas({
     </>
   );
 
+  const mapSvgInner = (
+    <>
+      <defs>
+        <linearGradient id={`szFill-${filterId}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.01)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0.01)" />
+        </linearGradient>
+      </defs>
+      {/* Soft outer rim light */}
+      <rect
+        x={SZ.x - 0.35}
+        y={SZ.y - 0.35}
+        width={SZ.w + 0.7}
+        height={SZ.h + 0.7}
+        rx="0.75"
+        fill="none"
+        stroke="rgba(37, 99, 255, 0.14)"
+        strokeWidth="0.85"
+        opacity={0.95}
+        pointerEvents="none"
+      />
+      <rect
+        x={SZ.x}
+        y={SZ.y}
+        width={SZ.w}
+        height={SZ.h}
+        rx="0.6"
+        fill={`url(#szFill-${filterId})`}
+        stroke="rgba(72, 164, 255, 0.45)"
+        strokeWidth="0.75"
+        pointerEvents="none"
+      />
+      {placement ? (
+        <StrikeZonePlacementLayer
+          phase={placement.phase}
+          draftPick={placement.draftPick}
+          lockedPick={placement.lockedPick}
+          resultActualCell={placement.resultActualCell}
+          onToggleCell={placement.onToggleCell}
+        />
+      ) : null}
+      <g
+        pointerEvents="none"
+        opacity={0.9}
+        stroke="rgba(72, 164, 255, 0.45)"
+        strokeWidth="0.9"
+      >
+        <line
+          x1={SZ_V1}
+          y1={SZ.y}
+          x2={SZ_V1}
+          y2={SZ.y + SZ.h}
+          strokeLinecap="round"
+        />
+        <line
+          x1={SZ_V2}
+          y1={SZ.y}
+          x2={SZ_V2}
+          y2={SZ.y + SZ.h}
+          strokeLinecap="round"
+        />
+        <line
+          x1={SZ.x}
+          y1={SZ_H1}
+          x2={SZ.x + SZ.w}
+          y2={SZ_H1}
+          strokeLinecap="round"
+        />
+        <line
+          x1={SZ.x}
+          y1={SZ_H2}
+          x2={SZ.x + SZ.w}
+          y2={SZ_H2}
+          strokeLinecap="round"
+        />
+      </g>
+      {placement ? null : pitchDotsAndBetMarker}
+    </>
+  );
+
   const pulseClass =
-    mapPulseAwaitingPitch && placement ? "animate-np-pulse border-np-blue/25" : "";
+    mapPulseAwaitingPitch && placement
+      ? "animate-np-pulse border-np-blue/25"
+      : "";
 
   return (
     <div
-      className={`np-card np-card-interactive flex h-full min-h-0 flex-col p-5 shadow-np-card transition-[box-shadow,border-color] duration-300 ${pulseClass} ${className}`}
+      className={`relative flex h-full min-h-0 flex-col transition-[box-shadow,border-color] duration-300 ${pulseClass} ${className}`}
     >
-      <div className="shrink-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
-            Strike zone
-          </h2>
-          {placement ? (
-            <span className="rounded-full border border-np-cyan/30 bg-np-cyan/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-np-cyan">
-              Live
-            </span>
-          ) : null}
-        </div>
-        <p className="mt-1 text-xs text-white/50">
-          This at-bat only · Statcast location when available
-        </p>
-        {placement ? (
-          <p className="mt-2 text-[10px] leading-relaxed text-white/45">
-            Click squares inside the zone for coverage, or click{" "}
-            <span className="text-np-blue-bright/90">anywhere else on this pitch map</span> for a
-            ball (pitch not in zones 1–9). Click again to clear, or pick a zone square to switch.
-          </p>
-        ) : null}
-        <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-white/45">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-np-danger" /> Ball
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-np-success" /> Strike
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-amber-400" /> Foul
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-white/35" /> Other
-          </span>
-        </div>
-      </div>
-
       <div
         className={
           placement
-            ? "relative mt-3 flex min-h-0 flex-1 flex-col px-1 pb-1"
-            : "relative mt-3 flex min-h-0 flex-1 items-center justify-center px-1 pb-1"
+            ? "relative flex min-h-0 flex-1 flex-col px-1 pb-1"
+            : "relative flex min-h-0 flex-1 items-center justify-center px-1 pb-1"
         }
       >
         {placement ? (
           <div
             ref={mapAreaRef}
-            className={`relative flex-1 min-h-[240px] w-full lg:min-h-[300px] ${fadeWrap}`}
+            className="relative flex-1 h-full min-h-[320px] w-full overflow-hidden rounded-np-control"
           >
             <svg
               ref={mapSvgRef}
@@ -266,6 +314,17 @@ export function StrikeZoneCanvas({
               ballResult={placement.ballResult}
               onSelectBall={placement.onSelectBall}
             />
+            {/* Above ball-margin overlay (z-20) so pitches outside the zone stay visible */}
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid meet"
+              overflow="visible"
+              shapeRendering="geometricPrecision"
+              className="pointer-events-none absolute inset-0 z-[30] block h-full w-full overflow-visible"
+              aria-hidden
+            >
+              {pitchDotsAndBetMarker}
+            </svg>
           </div>
         ) : (
           <svg
@@ -279,11 +338,7 @@ export function StrikeZoneCanvas({
           </svg>
         )}
       </div>
-      {pitches.length === 0 ? (
-        <p className="shrink-0 pb-1 text-center text-[11px] text-white/40">
-          No pitches in this plate appearance yet.
-        </p>
-      ) : null}
+      {/* keep panel clean; no bottom helper copy */}
     </div>
   );
 }

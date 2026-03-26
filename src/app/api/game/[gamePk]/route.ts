@@ -33,6 +33,13 @@ type Params = { params: Promise<{ gamePk: string }> };
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// Small in-memory dedupe + micro-cache to prevent client polling bursts from
+// hammering MLB (which can cause intermittent stalls / throttling).
+// This is per-server-instance (good enough for local dev and single-instance deploys).
+const LIVE_CACHE_MS = 500;
+const livePayloadCache = new Map<number, { atMs: number; payload: unknown }>();
+const inflightLive = new Map<number, Promise<unknown>>();
+
 function feedHasLinescore(feed: unknown): boolean {
   const f = feed as Record<string, unknown>;
   const ld = f?.liveData as Record<string, unknown> | undefined;
@@ -104,12 +111,42 @@ export async function GET(_req: Request, segment: Params) {
     });
   }
 
+  // Fast path: serve a very-fresh cached payload for real live games.
+  // (Never used for the explicit demo game id.)
+  if (gamePk !== DEMO_GAME_PK) {
+    const cached = livePayloadCache.get(gamePk);
+    if (cached && Date.now() - cached.atMs <= LIVE_CACHE_MS) {
+      return NextResponse.json(cached.payload, {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          "X-NP-Live-Cache": "hit",
+        },
+      });
+    }
+    const inflight = inflightLive.get(gamePk);
+    if (inflight) {
+      const payload = await inflight;
+      return NextResponse.json(payload, {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          "X-NP-Live-Cache": "dedupe",
+        },
+      });
+    }
+  }
+
   const session = await getSession();
   const storeForDemo = session
     ? normalizeStoreData(await readStore(session.userId))
     : null;
-  const { enabled: demoMode } = await resolveDemoModeForApi(_req, { store: storeForDemo });
-  if (demoMode) {
+  const { enabled: demoMode } = await resolveDemoModeForApi(_req, {
+    store: storeForDemo,
+  });
+
+  // IMPORTANT: Only the explicit demo game id is ever allowed to use
+  // simulated/demo payloads. For all real MLB gamePks we ALWAYS hit the
+  // live MLB feeds so scoreboard / count / pitcher / batter / score stay accurate.
+  if (demoMode && gamePk === DEMO_GAME_PK) {
     let pitchIndex = 0;
     let settledCount = 0;
 
@@ -196,107 +233,108 @@ export async function GET(_req: Request, segment: Params) {
     );
   }
 
-  const [feed, linescore] = await Promise.all([
-    fetchLiveFeed(gamePk),
-    fetchLinescore(gamePk),
-  ]);
+  // Wrap the live build in an inflight promise so concurrent polls share one MLB fetch.
+  const buildLivePayload = async (): Promise<unknown> => {
+    const [feed, linescore] = await Promise.all([
+      fetchLiveFeed(gamePk),
+      fetchLinescore(gamePk),
+    ]);
 
-  const fromFeedEarly = feed ? extractTeamNamesFromFeed(feed) : { away: null, home: null };
-  const abFromFeed = feed ? extractTeamAbbrevsFromFeed(feed) : { away: null, home: null };
-  let boxscore: unknown | null = null;
-  const needBoxscore =
-    !feed ||
-    !fromFeedEarly.away ||
-    !fromFeedEarly.home ||
-    !abFromFeed.away ||
-    !abFromFeed.home;
-  if (needBoxscore) {
-    boxscore = await fetchBoxscore(gamePk);
-  }
+    const fromFeedEarly = feed
+      ? extractTeamNamesFromFeed(feed)
+      : { away: null, home: null };
+    const abFromFeed = feed ? extractTeamAbbrevsFromFeed(feed) : { away: null, home: null };
+    let boxscore: unknown | null = null;
+    const needBoxscore =
+      !feed ||
+      !fromFeedEarly.away ||
+      !fromFeedEarly.home ||
+      !abFromFeed.away ||
+      !abFromFeed.home;
+    if (needBoxscore) {
+      boxscore = await fetchBoxscore(gamePk);
+    }
 
-  if (!feed && !linescore) {
-    return NextResponse.json(
-      {
+    if (!feed && !linescore) {
+      return {
         error:
           "Could not load this game from MLB (no live feed or linescore). Try another game or Demo.",
-      },
-      { status: 502 },
-    );
-  }
+      };
+    }
 
-  const summary: LiveGameSummary = {
-    gamePk,
-    away: "Away",
-    home: "Home",
-    status: "Live",
-  };
+    const summary: LiveGameSummary = {
+      gamePk,
+      away: "Away",
+      home: "Home",
+      status: "Live",
+    };
 
-  const fromFeed = fromFeedEarly;
-  const fromBox = boxscore
-    ? extractTeamNamesFromBoxscore(boxscore)
-    : { away: null, home: null };
-  const fromLs = linescore
-    ? extractTeamNamesFromLinescore(linescore)
-    : { away: null, home: null };
-  // Linescore rarely has names; boxscore does when the live feed is thin or missing.
-  summary.away = fromFeed.away ?? fromBox.away ?? fromLs.away ?? summary.away;
-  summary.home = fromFeed.home ?? fromBox.home ?? fromLs.home ?? summary.home;
+    const fromFeed = fromFeedEarly;
+    const fromBox = boxscore
+      ? extractTeamNamesFromBoxscore(boxscore)
+      : { away: null, home: null };
+    const fromLs = linescore
+      ? extractTeamNamesFromLinescore(linescore)
+      : { away: null, home: null };
+    // Linescore rarely has names; boxscore does when the live feed is thin or missing.
+    summary.away = fromFeed.away ?? fromBox.away ?? fromLs.away ?? summary.away;
+    summary.home = fromFeed.home ?? fromBox.home ?? fromLs.home ?? summary.home;
 
-  let situation;
-  let feedSource: "live_feed" | "linescore" = "live_feed";
+    let situation;
+    let feedSource: "live_feed" | "linescore" = "live_feed";
 
-  if (feed && feedHasLinescore(feed)) {
-    situation = parseSituation(feed, summary);
-  } else if (linescore) {
-    situation = parseSituationFromLinescore(linescore, summary);
-    feedSource = "linescore";
-  } else if (feed) {
-    situation = parseSituation(feed, summary);
-  } else {
-    return NextResponse.json(
-      { error: "Could not parse game state from MLB." },
-      { status: 502 },
-    );
-  }
+    if (feed && feedHasLinescore(feed)) {
+      situation = parseSituation(feed, summary);
+    } else if (linescore) {
+      situation = parseSituationFromLinescore(linescore, summary);
+      feedSource = "linescore";
+    } else if (feed) {
+      situation = parseSituation(feed, summary);
+    } else {
+      return { error: "Could not parse game state from MLB." };
+    }
 
-  const playCount = feed ? getPlayCount(feed) : 0;
+    const playCount = feed ? getPlayCount(feed) : 0;
 
-  const linescoreNode =
-    feed && feedHasLinescore(feed)
-      ? (feed as Record<string, unknown>)?.liveData != null
-        ? ((feed as Record<string, unknown>).liveData as Record<string, unknown>)?.linescore
-        : null
-      : linescore;
+    const linescoreNode =
+      feed && feedHasLinescore(feed)
+        ? (feed as Record<string, unknown>)?.liveData != null
+          ? ((feed as Record<string, unknown>).liveData as Record<string, unknown>)?.linescore
+          : null
+        : linescore;
 
-  const runs = linescoreNode ? runsFromLinescore(linescoreNode) : { away: 0, home: 0 };
-  const ab = boxscore ? abbrevFromBoxscore(boxscore) : { away: null, home: null };
-  const awayAbbr =
-    abFromFeed.away ??
-    ab.away ??
-    (situation.away.length >= 3 ? situation.away.slice(0, 3).toUpperCase() : situation.away.toUpperCase());
-  const homeAbbr =
-    abFromFeed.home ??
-    ab.home ??
-    (situation.home.length >= 3 ? situation.home.slice(0, 3).toUpperCase() : situation.home.toUpperCase());
+    const runs = linescoreNode ? runsFromLinescore(linescoreNode) : { away: 0, home: 0 };
+    const ab = boxscore ? abbrevFromBoxscore(boxscore) : { away: null, home: null };
+    const awayAbbr =
+      abFromFeed.away ??
+      ab.away ??
+      (situation.away.length >= 3
+        ? situation.away.slice(0, 3).toUpperCase()
+        : situation.away.toUpperCase());
+    const homeAbbr =
+      abFromFeed.home ??
+      ab.home ??
+      (situation.home.length >= 3
+        ? situation.home.slice(0, 3).toUpperCase()
+        : situation.home.toUpperCase());
 
-  const recentPitches = feed ? parseRecentPitchesFromFeed(feed, 24) : [];
-  const atBatPitches = feed ? parseCurrentAtBatPitchesFromFeed(feed) : [];
+    const recentPitches = feed ? parseRecentPitchesFromFeed(feed, 24) : [];
+    const atBatPitches = feed ? parseCurrentAtBatPitchesFromFeed(feed) : [];
 
-  let settledCount = 0;
-  if (feed && gamePk !== DEMO_GAME_PK) {
-    const session = await getSession();
-    if (session) {
-      const store = normalizeStoreData(await readStore(session.userId));
-      const { settled } = await autoResolvePendingForGame(gamePk, store, feed);
-      settledCount = settled.length;
-      if (settledCount > 0) {
-        await writeStore(session.userId, store);
+    let settledCount = 0;
+    if (feed && gamePk !== DEMO_GAME_PK) {
+      const session = await getSession();
+      if (session) {
+        const store = normalizeStoreData(await readStore(session.userId));
+        const { settled } = await autoResolvePendingForGame(gamePk, store, feed);
+        settledCount = settled.length;
+        if (settledCount > 0) {
+          await writeStore(session.userId, store);
+        }
       }
     }
-  }
 
-  return NextResponse.json(
-    {
+    return {
       demo: false,
       situation,
       playCount,
@@ -306,11 +344,28 @@ export async function GET(_req: Request, segment: Params) {
       teamAbbr: { away: awayAbbr, home: homeAbbr },
       recentPitches,
       atBatPitches,
-    },
-    {
+    };
+  };
+
+  if (gamePk !== DEMO_GAME_PK) {
+    const p = buildLivePayload().finally(() => inflightLive.delete(gamePk));
+    inflightLive.set(gamePk, p);
+    const payload = await p;
+    livePayloadCache.set(gamePk, { atMs: Date.now(), payload });
+    return NextResponse.json(payload, {
+      status: (payload as Record<string, unknown>)?.error ? 502 : 200,
       headers: {
         "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        "X-NP-Live-Cache": "miss",
       },
+    });
+  }
+
+  const payload = await buildLivePayload();
+  return NextResponse.json(payload, {
+    status: (payload as Record<string, unknown>)?.error ? 502 : 200,
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0, must-revalidate",
     },
-  );
+  });
 }

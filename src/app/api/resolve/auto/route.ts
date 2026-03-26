@@ -53,6 +53,13 @@ export async function POST(req: Request) {
       ok: true,
       settledCount: settled.length,
       settledIds: settled.map((b) => b.id),
+      settledSummary: settled.map((b) => ({
+        id: b.id,
+        status: b.status,
+        stake: b.stake,
+        payout: b.payout ?? 0,
+        zoneCell: b.outcome?.zoneCell ?? null,
+      })),
       balance: store.demoBalance ?? 1000,
     });
   }
@@ -70,6 +77,13 @@ export async function POST(req: Request) {
     ok: true,
     settledCount: settled.length,
     settledIds: settled.map((b) => b.id),
+    settledSummary: settled.map((b) => ({
+      id: b.id,
+      status: b.status,
+      stake: b.stake,
+      payout: b.payout ?? 0,
+      zoneCell: b.outcome?.zoneCell ?? null,
+    })),
     balance: storeLive.balance,
   });
 }

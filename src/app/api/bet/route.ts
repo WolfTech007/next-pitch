@@ -127,22 +127,25 @@ export async function POST(req: Request) {
     clientAssertDemo: body.clientDemoMode === true,
     store,
   });
+  const isDemoGame = gamePk === DEMO_GAME_PK;
+  // Only allow demo wallet / behavior for the explicit demo game id.
+  const effectiveDemo = demoMode && isDemoGame;
 
   const liveBal = store.balance;
   const demoBal = store.demoBalance ?? 1000;
-  if (demoMode) {
+  if (effectiveDemo) {
     if (demoBal < stake) {
       return NextResponse.json({ error: "Insufficient fake balance." }, { status: 400 });
     }
   } else if (liveBal < stake) {
-    return NextResponse.json({ error: "Insufficient fake balance." }, { status: 400 });
+    return NextResponse.json({ error: "Insufficient balance." }, { status: 400 });
   }
 
   let playCountAtBet = 0;
   let pitchSignatureAtBet: string | null = null;
   let scoreboardAtBet: ScoreboardSnapshot | undefined;
 
-  if (demoMode && gamePk !== DEMO_GAME_PK) {
+  if (effectiveDemo && gamePk !== DEMO_GAME_PK) {
     const clientBoard = parseScoreboardBody(body.scoreboardAtBet);
     if (!clientBoard) {
       return NextResponse.json(
@@ -157,7 +160,7 @@ export async function POST(req: Request) {
     const pitchIdx = getDemoReplayState(store, gamePk).pitchIndex;
     playCountAtBet = demoPlayCountFromPitchIndex(gamePk, pitchIdx);
     pitchSignatureAtBet = null;
-  } else if (gamePk === DEMO_GAME_PK) {
+  } else if (isDemoGame) {
     playCountAtBet = 0;
     pitchSignatureAtBet = null;
   } else {
@@ -249,7 +252,7 @@ export async function POST(req: Request) {
     ...(scoreboardAtBet ? { scoreboardAtBet } : {}),
   };
 
-  if (demoMode) {
+  if (effectiveDemo) {
     store.demoBalance = (store.demoBalance ?? 1000) - stake;
     store.demoBets = store.demoBets ?? [];
     store.demoBets.unshift(bet);
@@ -264,6 +267,6 @@ export async function POST(req: Request) {
   }
   await writeStore(session.userId, store);
 
-  const balOut = demoMode ? store.demoBalance! : store.balance;
+  const balOut = effectiveDemo ? store.demoBalance! : store.balance;
   return NextResponse.json({ ok: true, bet, balance: balOut, quote: q });
 }

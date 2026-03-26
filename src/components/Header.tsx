@@ -31,9 +31,19 @@ export function Header() {
     }
     tick();
     const t = setInterval(tick, 8000);
+
+    function onBalance(e: Event) {
+      const bal = (e as CustomEvent<number>).detail;
+      if (typeof bal === "number") {
+        setMe((prev) => (prev ? { ...prev, balance: bal } : prev));
+      }
+    }
+    window.addEventListener("np:balance", onBalance);
+
     return () => {
       cancelled = true;
       clearInterval(t);
+      window.removeEventListener("np:balance", onBalance);
     };
   }, []);
 
@@ -45,12 +55,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#060B16]/85 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3.5 lg:px-6">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-2.5 lg:px-6">
         <Link
           href="/"
           className="group flex items-center gap-2 text-lg font-bold tracking-tight text-np-text"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-np-blue/40 bg-gradient-to-br from-np-blue/25 to-transparent text-xs font-black text-np-blue-bright shadow-[0_0_20px_rgba(37,99,255,0.25)]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-np-blue/40 bg-gradient-to-br from-np-blue/25 to-transparent text-[11px] font-black text-np-blue-bright shadow-[0_0_20px_rgba(37,99,255,0.25)]">
             NP
           </span>
           <span className="hidden sm:inline">Next Pitch</span>

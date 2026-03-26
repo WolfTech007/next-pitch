@@ -14,6 +14,10 @@ export async function GET(req: Request) {
   }
   const store = normalizeStoreData(await readStore(session.userId));
   const { enabled: demoMode } = await resolveDemoModeForApi(req, { store });
+
+  // IMPORTANT: Demo wallet/history is only surfaced when the user is truly
+  // in demo-mode games. For real MLB games we always return the live wallet
+  // and live bet list so settlement works correctly.
   if (demoMode) {
     return NextResponse.json({
       balance: store.demoBalance ?? 1000,
